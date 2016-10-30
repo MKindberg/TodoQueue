@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/mainView"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    >
+
+    <Button
+        android:id="@+id/buttonBot"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/button_back"
+        android:onClick="add"
+        android:text="@string/add_new_btn"
+        android:textColor="#999"
+        android:layout_alignParentBottom="true"
+/>
+    <Button
+        android:id="@+id/buttonTop"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/button_back"
+        android:stateListAnimator="@null"
+        android:onClick="putLast"
+        android:text="@string/put_last_btn"
+        android:textColor="#999"
+        android:layout_alignParentTop="true"
+/>
+    <Button
+        android:id="@+id/buttonLeft"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="50dp"
+        android:layout_height="fill_parent"
+        android:clickable="true"
+        android:onClick="postpone"
+        android:orientation="vertical"
+        android:background="@drawable/button_back"
+        android:singleLine="false"
+        android:text="@string/postpone_btn"
+        android:textColor="#999"
+        android:layout_alignParentStart="true" />
+    <Button
+        android:id="@+id/buttonRight"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="50dp"
+        android:layout_height="fill_parent"
+        android:background="@drawable/button_back"
+        android:onClick="complete"
+        android:text="@string/complete_btn"
+        android:textColor="#999"
+        android:layout_alignParentEnd="true"
+ />
+    <Button
+        android:id="@+id/buttonMenu"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="@drawable/button_back"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+
+        android:rotation="90"
+        android:text="..."
+
+        android:onClick="menu"
+        />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/frameLay"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:layout_above="@+id/buttonBot"
+        android:layout_below="@id/buttonTop"
+        android:layout_toEndOf="@id/buttonLeft"
+        android:layout_toStartOf="@id/buttonRight"
+        >
+
+        <LinearLayout
+            android:id="@+id/textGroupBack"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border"
+            android:orientation="vertical"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+
+            <TextView
+                android:id="@+id/TaskViewBack"
+                android:layout_width="fill_parent"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                android:paddingTop="30dp"
+                android:text="@string/empty"
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="40sp"
+
+                />
+
+            <TextView
+                android:id="@+id/DescViewBack"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_weight="5"
+                android:text="@string/please_add"
+                android:textSize="23sp"
+                android:textAlignment="center"
+                />
+
+            <TextView
+                android:id="@+id/PrioTextBack"
+                android:layout_width="fill_parent"
+                android:layout_height="30dp"
+                android:textAlignment="viewEnd"
+                android:paddingEnd="20dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/textGroup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border"
+            android:orientation="vertical"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            >
+
+
+
+            <TextView
+                android:id="@+id/TaskView"
+                android:layout_width="fill_parent"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                android:paddingTop="30dp"
+                android:text="@string/empty"
+                android:textAlignment="center"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="40sp"
+
+                />
+
+            <TextView
+                android:id="@+id/DescView"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:layout_weight="5"
+                android:textSize="23sp"
+                android:text="@string/please_add"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/PrioText"
+                android:layout_width="fill_parent"
+                android:layout_height="30dp"
+                android:textAlignment="viewEnd"
+                android:paddingEnd="20dp"
+                />
+        </LinearLayout>
+    </FrameLayout>
+</RelativeLayout>

@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.maurax.todoqueue.ListActivity">
+    <item
+        android:title="Tutorial"
+        android:id="@+id/tutorialOp"
+        />
+    <item
+        android:title="Sort by priorities"
+        android:id="@+id/sortOp"
+        />
+    <item
+        android:title="Use colors"
+        android:checkable="true"
+        android:id="@+id/colorsOp"
+        />
+    <item
+        android:title="Show notification"
+        android:checkable="true"
+        android:id="@+id/notifyOp"
+        />
+</menu>
