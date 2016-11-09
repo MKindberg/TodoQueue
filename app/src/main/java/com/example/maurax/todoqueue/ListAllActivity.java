@@ -19,6 +19,7 @@ import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -128,13 +129,47 @@ public class ListAllActivity extends AppCompatActivity {
         });
 
         filler.setOnTouchListener(new View.OnTouchListener() {
+            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+
+                @Override
+                public boolean onDown(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    Log.i("Event", "Double");
+                    back();
+                    return super.onDoubleTap(e);
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    Log.i("Event", "Long");
+                    tutorial();
+                    super.onLongPress(e);
+                }
+
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    Log.i("Event", "Tap");
+                    if (focused != -1) {
+                        setFocus(focused, false);
+                        focused = -1;
+                    }
+                    return super.onSingleTapUp(e);
+                }
+            });
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (focused != -1) {
-                    setFocus(focused, false);
-                    focused = -1;
-                }
-                return true;
+                Log.i("Event", "Touch");
+                gestureDetector.onTouchEvent(event);
+                //if (focused != -1) {
+                //    setFocus(focused, false);
+                //    focused = -1;
+                //}
+                return false;
             }
         });
 
@@ -301,11 +336,11 @@ public class ListAllActivity extends AppCompatActivity {
 
     public void moveUp() {
         if (focused > 0) {
-            l.add(focused - 1, l.remove(focused));
             setFocus(focused, false);
+            l.add(focused - 1, l.remove(focused));
             focused--;
             update();
-            setFocus(focused, true);
+            //setFocus(focused, true);
         } else if (focused == -1)
             message(getResources().getString(R.string.lv_please_select));
         else
@@ -322,7 +357,7 @@ public class ListAllActivity extends AppCompatActivity {
             setFocus(focused, false);
             focused++;
             update();
-            setFocus(focused, true);
+            //setFocus(focused, true);
         } else if (focused == -1)
             message(getResources().getString(R.string.lv_please_select));
         else
@@ -489,7 +524,7 @@ public class ListAllActivity extends AppCompatActivity {
     }
 
     public void tutorial() {
-
+        message("Tutorial");
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage(getResources().getString(R.string.instructions) + ":\n" +
@@ -588,8 +623,9 @@ public class ListAllActivity extends AppCompatActivity {
         String d = temp.toString();
         String[] data = d.split("--");
         LinkedList<Task> ll = new LinkedList<>();
-        for (int i = 0; i < data.length - 2; i += 3)
+        for (int i = 0; i < data.length - 2; i += 3) {
             ll.add(new Task(data[i].substring(1), data[i + 1].substring(1), Integer.parseInt(data[i + 2])));
+        }
         t = new Tasks(ll);
     }
 

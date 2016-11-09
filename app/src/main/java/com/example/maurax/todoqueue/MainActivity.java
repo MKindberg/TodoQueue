@@ -526,20 +526,20 @@ public class MainActivity extends AppCompatActivity {
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
                 String rec;
-
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec);
+                    temp.append(rec + "\n");
                 }
                 is.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         String d = temp.toString();
         String[] data = d.split("--");
         LinkedList<Task> ll = new LinkedList<>();
         for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].substring(1), data[i + 1].substring(1), Integer.parseInt(data[i + 2])));
+            ll.add(new Task(data[i].substring(1).trim(), data[i + 1].substring(2).trim(), Integer.parseInt(data[i + 2].trim())));
         t = new Tasks(ll);
 
         try {
