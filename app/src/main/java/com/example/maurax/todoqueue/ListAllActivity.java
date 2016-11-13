@@ -331,11 +331,11 @@ public class ListAllActivity extends AppCompatActivity {
 
     public void moveUp() {
         if (focused > 0) {
-            l.add(focused - 1, l.remove(focused));
             setFocus(focused, false);
+            l.add(focused - 1, l.remove(focused));
             focused--;
             update();
-            setFocus(focused, true);
+            //setFocus(focused, true);
         } else if (focused == -1)
             message(getResources().getString(R.string.lv_please_select));
         else
@@ -352,7 +352,7 @@ public class ListAllActivity extends AppCompatActivity {
             setFocus(focused, false);
             focused++;
             update();
-            setFocus(focused, true);
+            //setFocus(focused, true);
         } else if (focused == -1)
             message(getResources().getString(R.string.lv_please_select));
         else
@@ -519,7 +519,7 @@ public class ListAllActivity extends AppCompatActivity {
     }
 
     public void tutorial() {
-
+        message("Tutorial");
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage(getResources().getString(R.string.instructions) + ":\n" +

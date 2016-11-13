@@ -527,15 +527,15 @@ public class MainActivity extends AppCompatActivity {
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
                 String rec;
-
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec+"\n");
+                    temp.append(rec + "\n");
                 }
                 is.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         String d = temp.toString();
         String[] data = d.split("--");
         LinkedList<Task> ll = new LinkedList<>();
