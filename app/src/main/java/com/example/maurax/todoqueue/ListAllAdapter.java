@@ -37,9 +37,18 @@ public class ListAllAdapter extends ArrayAdapter<Task> {
 
         TextView tTitle = (TextView) view.findViewById(R.id.text1);
         TextView tDesc = (TextView) view.findViewById(R.id.text2);
-
-        tTitle.setText(t.getName());
-        tDesc.setText(t.getDescription().replace("\n", "  //  "));
+        if(!t.getName().equals(""))
+            tTitle.setText(t.getName());
+        else{
+            tTitle.setVisibility(View.GONE);
+            view.findViewById(R.id.itemLine).setVisibility(View.GONE);
+        }
+        if(!t.getDescription().equals(""))
+            tDesc.setText(t.getDescription().replace("\n", "  //  "));
+        else{
+            tDesc.setVisibility(View.GONE);
+            view.findViewById(R.id.itemLine).setVisibility(View.GONE);
+        }
         return view;
     }
 }
