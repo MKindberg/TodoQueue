@@ -226,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
         final EditText inDesc = new EditText(this);
         inDesc.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        inDesc.setSingleLine(false);
         inDesc.setHint(getResources().getString(R.string.desc));
         layout.addView(inDesc);
 

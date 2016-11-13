@@ -97,12 +97,7 @@ public class Task implements Parcelable, Comparable<Task> {
     public String toString() {
         if (description.length() == 0)
             return name;
-        int maxLen = 20;
-        if(description.substring(0, description.length()>20?20:description.length()).contains("\n"))
-            maxLen+=6;
         String res = description.replace("\n", "  //  ");
-        if (res.length() > maxLen)
-            return name + " - " + res.substring(0, maxLen-4) + " ...";
         return name + " - " + res;
     }
 

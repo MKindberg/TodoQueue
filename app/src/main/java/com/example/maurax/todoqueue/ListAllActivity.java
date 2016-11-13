@@ -86,7 +86,7 @@ public class ListAllActivity extends AppCompatActivity {
         popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
         popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
 
-        aa = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, l);
+        aa = new ArrayAdapter<>(this, R.layout.listitem, l);
         lv.setAdapter(aa);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
