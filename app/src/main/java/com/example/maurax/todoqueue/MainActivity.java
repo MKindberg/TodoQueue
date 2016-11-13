@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
         getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
 
-        filePath = getFilesDir().getPath();
+        filePath = this.getFilesDir().getPath();
         if (!"listAll".equals(in.getStringExtra("sender"))) {
             load();
             File f = new File(filePath + "tutorial");
@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
         layout.addView(inTask);
 
         final EditText inDesc = new EditText(this);
+        inDesc.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         inDesc.setHint(getResources().getString(R.string.desc));
         layout.addView(inDesc);
 
@@ -528,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
                 String rec;
 
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec);
+                    temp.append(rec+"\n");
                 }
                 is.close();
             }
@@ -539,7 +540,7 @@ public class MainActivity extends AppCompatActivity {
         String[] data = d.split("--");
         LinkedList<Task> ll = new LinkedList<>();
         for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].substring(1), data[i + 1].substring(1), Integer.parseInt(data[i + 2])));
+            ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
         t = new Tasks(ll);
 
         try {

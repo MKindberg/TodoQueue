@@ -15,15 +15,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -127,10 +130,34 @@ public class ListAllActivity extends AppCompatActivity {
             }
         });
 
+        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+               color();
+            }
+        });
+
         filler.setOnTouchListener(new View.OnTouchListener() {
+            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    back();
+                    return super.onDoubleTap(e);
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    tutorial();
+                }
+            });
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (focused != -1) {
+                gestureDetector.onTouchEvent(event);
+                if (event.getAction()==MotionEvent.ACTION_UP && focused != -1) {
                     setFocus(focused, false);
                     focused = -1;
                 }
@@ -264,6 +291,8 @@ public class ListAllActivity extends AppCompatActivity {
         if (colors) {
             for (int i = 0; i < aa.getCount(); i++) {
                 View v = lv.getChildAt(i);
+                if(v==null)
+                    continue;
                 int colId;
                 switch (aa.getItem(i).getPriority()) {
                     case 1:
@@ -291,7 +320,8 @@ public class ListAllActivity extends AppCompatActivity {
         } else {
             for (int i = 0; i < aa.getCount(); i++) {
                 View v = lv.getChildAt(i);
-                v.setBackgroundColor(ContextCompat.getColor(this, R.color.noPrio));
+                if(v!=null)
+                    v.setBackgroundColor(ContextCompat.getColor(this, R.color.noPrio));
             }
         }
         if (focused != -1)
@@ -578,7 +608,7 @@ public class ListAllActivity extends AppCompatActivity {
                 String rec;
 
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec);
+                    temp.append(rec+"\n");
                 }
                 is.close();
             }
@@ -589,7 +619,7 @@ public class ListAllActivity extends AppCompatActivity {
         String[] data = d.split("--");
         LinkedList<Task> ll = new LinkedList<>();
         for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].substring(1), data[i + 1].substring(1), Integer.parseInt(data[i + 2])));
+            ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
         t = new Tasks(ll);
     }
 

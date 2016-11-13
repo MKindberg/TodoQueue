@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 
+import static android.os.Build.VERSION_CODES.M;
+
 public class Task implements Parcelable, Comparable<Task> {
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -95,9 +97,13 @@ public class Task implements Parcelable, Comparable<Task> {
     public String toString() {
         if (description.length() == 0)
             return name;
-        if (description.length() > 20)
-            return name + " - " + description.substring(0, 18) + "...";
-        return name + " - " + description;
+        int maxLen = 20;
+        if(description.substring(0, description.length()>20?20:description.length()).contains("\n"))
+            maxLen+=6;
+        String res = description.replace("\n", "  //  ");
+        if (res.length() > maxLen)
+            return name + " - " + res.substring(0, maxLen-4) + " ...";
+        return name + " - " + res;
     }
 
     @Override
