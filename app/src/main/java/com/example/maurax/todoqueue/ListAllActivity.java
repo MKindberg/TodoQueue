@@ -15,12 +15,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -47,11 +45,9 @@ import java.util.LinkedList;
 
 public class ListAllActivity extends AppCompatActivity {
     private LinkedList<Task> l;
-    private RelativeLayout relLay;
     private Tasks t;
     private ListView lv;
     private ArrayAdapter<Task> aa;
-    private View filler;
 
     private int focused = -1;
 
@@ -68,30 +64,53 @@ public class ListAllActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
 
-        relLay = (RelativeLayout) findViewById(R.id.relLay2);
         lv = (ListView) findViewById(R.id.listView);
-        filler = findViewById(R.id.filler);
         assert lv != null;
 
-        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
-        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        aa = new ListAllAdapter(this, R.layout.listitem, l);
+        lv.setAdapter(aa);
 
         filePath = getFilesDir().toString();
 
+        readIntent();
+
+        createMenu();
+
+        setListeners();
+
+        checkTutorial();
+//        update();
+        lv.post(new Runnable() {
+            @Override
+            public void run() {
+                color();
+            }
+        });
+
+    }
+
+    private void createMenu() {
+        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
+        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+    }
+
+    private void readIntent() {
         Intent i = getIntent();
         t = i.getParcelableExtra("list");
         l = t.getAll();
         colors = i.getBooleanExtra("colors", false);
         notification = i.getBooleanExtra("notification", false);
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+    }
 
-        aa = new ListAllAdapter(this, R.layout.listitem, l);
-        lv.setAdapter(aa);
+    private void setListeners() {
+        View filler = findViewById(R.id.filler);
+        final RelativeLayout relLay = (RelativeLayout) findViewById(R.id.relLay2);
+
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //message("foc=" + focused + ", pos=" + position);
                 if (focused == -1) {
                     focused = position;
                     setFocus(position, true);
@@ -126,6 +145,8 @@ public class ListAllActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
+                if(event.getAction() != MotionEvent.ACTION_UP && focused!=-1)
+                    return true;
                 return false;
             }
         });
@@ -137,7 +158,7 @@ public class ListAllActivity extends AppCompatActivity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-               color();
+                color();
             }
         });
 
@@ -165,6 +186,9 @@ public class ListAllActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void checkTutorial() {
         File f = new File(filePath + "tutorial2");
         if (!f.exists()) {
             try {
@@ -174,14 +198,6 @@ public class ListAllActivity extends AppCompatActivity {
             }
             tutorial();
         }
-//        update();
-        lv.post(new Runnable() {
-            @Override
-            public void run() {
-                color();
-            }
-        });
-
     }
 
     public void menu(View v) {
@@ -233,7 +249,6 @@ public class ListAllActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
 
@@ -270,6 +285,20 @@ public class ListAllActivity extends AppCompatActivity {
     }
 
     public void setFocus(int pos, boolean focus) {
+        if(pos == 0)
+            lv.setSelectionAfterHeaderView();
+        else if(pos<=lv.getFirstVisiblePosition())
+            lv.setSelection(pos-1);
+        else if(pos>=lv.getLastVisiblePosition())
+            lv.setSelection(1+pos-(lv.getLastVisiblePosition()-lv.getFirstVisiblePosition()));
+        //else if(pos == lv.getCount()-1)
+        //    lv.setSelection
+        //if(pos>=lv.getLastVisiblePosition() && pos<lv.getCount()-1)
+        //    lv.setSelection(pos);
+        //else if(pos<=lv.getFirstVisiblePosition() && pos>0)
+        //    lv.setSelection(pos);
+        pos -= lv.getFirstVisiblePosition();
+
         if (focus) {
             int col = ((ColorDrawable) lv.getChildAt(pos).getBackground()).getColor();
             float[] hsv = new float[3];
@@ -327,7 +356,6 @@ public class ListAllActivity extends AppCompatActivity {
         if (focused != -1)
             setFocus(focused, true);
     }
-
 
     public void moveUp() {
         if (focused > 0) {

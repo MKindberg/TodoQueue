@@ -65,30 +65,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         t = new Tasks();
-        Intent in = getIntent();
 
-        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
-        getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        createMenu();
 
         filePath = this.getFilesDir().getPath();
-        if (!"listAll".equals(in.getStringExtra("sender"))) {
-            load();
-            File f = new File(filePath + "tutorial");
-            if (!f.exists()) {
-                try {
-                    f.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                tutorial();
-            }
-        } else {
-            t = in.getParcelableExtra("list");
-            colors = in.getBooleanExtra("colors", false);
-            notification = in.getBooleanExtra("notification", false);
-            popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-            popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
-        }
+
+        readIntent();
+
         update();
         updateBack();
 
@@ -154,6 +137,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void createMenu() {
+        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
+        getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+    }
+
+    private void readIntent() {
+        Intent in = getIntent();
+        if (!"listAll".equals(in.getStringExtra("sender"))) {
+            load();
+            checkTutorial();
+
+        }
+    else {
+            t = in.getParcelableExtra("list");
+            colors = in.getBooleanExtra("colors", false);
+            notification = in.getBooleanExtra("notification", false);
+            popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
+            popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+        }
+    }
+    private void checkTutorial() {
+        File f = new File(filePath + "tutorial");
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            tutorial();
+        }
+    }
 
     public void tutorial() {
         final File f = new File(filePath + "tutorial");
@@ -410,7 +424,6 @@ public class MainActivity extends AppCompatActivity {
         gd.setColor(ContextCompat.getColor(this, colId));
         tg.setBackground(gd);
     }
-
 
     public void message(String message) {
 
