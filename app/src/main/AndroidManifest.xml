@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".NotificationReciever"/>
+        <receiver android:name=".NotificationReciever" />
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -32,6 +32,16 @@
             android:name=".ListAllActivity"
             android:label="@string/title_activity_list_all"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <receiver android:name=".NewAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_app_widget_info" />
+        </receiver>
     </application>
 
 </manifest>
