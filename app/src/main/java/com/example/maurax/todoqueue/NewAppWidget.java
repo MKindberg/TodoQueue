@@ -2,9 +2,12 @@ package com.example.maurax.todoqueue;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +19,8 @@ import java.util.LinkedList;
  * Implementation of App Widget functionality.
  */
 public class NewAppWidget extends AppWidgetProvider {
+
+    public static String ACTION_UPDATE = "UPDATE";
 
     private Tasks t;
     private Context con;
@@ -77,6 +82,19 @@ public class NewAppWidget extends AppWidgetProvider {
         for (int i = 0; i < data.length - 2; i += 3)
             ll.add(new Task(data[i].substring(1), data[i + 1].substring(1), Integer.parseInt(data[i + 2])));
         t = new Tasks(ll);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        Toast.makeText(context, "recieved",
+                Toast.LENGTH_LONG).show();
+        if (intent.getAction().equals(ACTION_UPDATE)) {
+            AppWidgetManager awm = AppWidgetManager.getInstance(context);
+            ComponentName thisAppWidget = new ComponentName(context.getPackageName(), NewAppWidget.class.getName());
+            int[] appWidgetIds = awm.getAppWidgetIds(thisAppWidget);
+            onUpdate(context, awm, appWidgetIds);
+        }
     }
 }
 

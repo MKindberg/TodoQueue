@@ -19,6 +19,7 @@ import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -66,8 +67,9 @@ public class ListAllActivity extends AppCompatActivity {
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
-
+        Log.i("ListView", lv.toString());
         aa = new ListAllAdapter(this, R.layout.listitem, l);
+        Log.i("AA", aa.toString());
         lv.setAdapter(aa);
 
         filePath = getFilesDir().toString();
