@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 
 /**
@@ -21,7 +20,7 @@ public class Tasks implements Parcelable {
             return new Tasks[size];
         }
     };
-    LinkedList<Task> tasks;
+    private LinkedList<Task> tasks;
 
     public Tasks() {
         tasks = new LinkedList<Task>();
@@ -31,7 +30,7 @@ public class Tasks implements Parcelable {
         this.tasks = t;
     }
 
-    public Tasks(Parcel in) {
+    private Tasks(Parcel in) {
         tasks = new LinkedList<>();
         in.readList(tasks, getClass().getClassLoader());
     }
@@ -84,10 +83,6 @@ public class Tasks implements Parcelable {
 
     public LinkedList<Task> getAll() {
         return tasks;
-    }
-
-    public void load(LinkedList<Task> t) {
-        tasks = t;
     }
 
     @Override

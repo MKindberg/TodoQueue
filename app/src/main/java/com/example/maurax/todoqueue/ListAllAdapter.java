@@ -3,18 +3,11 @@ package com.example.maurax.todoqueue;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -22,20 +15,20 @@ import java.util.List;
  * Created by marcus on 2016-11-13.
  */
 
-public class ListAllAdapter extends ArrayAdapter<Task> {
+class ListAllAdapter extends ArrayAdapter<Task> {
 
-    List<Task> data;
-    Context context;
+    private final List<Task> data;
+    private final Context context;
 
-    public ListAllAdapter(Context context, int resource, List objects) {
-        super(context, resource, objects);
+    public ListAllAdapter(Context context, List<Task> objects) {
+        super(context, R.layout.listitem, objects);
         data = objects;
         this.context = context;
     }
 
     @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         ViewHolderItem viewHolder;
 

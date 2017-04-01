@@ -1,19 +1,14 @@
 package com.example.maurax.todoqueue;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.PopupMenu;
 import android.text.InputFilter;
 import android.text.SpannableString;
@@ -58,7 +53,8 @@ public class ListAllActivity extends AppCompatActivity {
 
     private String filePath;
 
-    private float x1, x2, y1, y2;
+    private float x1;
+    private float y1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +67,7 @@ public class ListAllActivity extends AppCompatActivity {
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
         Log.i("Test", "2");
-        aa = new ListAllAdapter(this, R.layout.listitem, l);
+        aa = new ListAllAdapter(this, l);
         lv.setAdapter(aa);
         Log.i("Test", "3");
         filePath = getFilesDir().toString();
@@ -134,7 +130,7 @@ public class ListAllActivity extends AppCompatActivity {
 
         assert relLay != null;
         lv.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -165,8 +161,9 @@ public class ListAllActivity extends AppCompatActivity {
             }
         });
 
+        assert filler != null;
         filler.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -261,8 +258,8 @@ public class ListAllActivity extends AppCompatActivity {
                 y1 = event.getY();
                 return super.dispatchTouchEvent(event);
             case MotionEvent.ACTION_UP:
-                x2 = event.getX();
-                y2 = event.getY();
+                float x2 = event.getX();
+                float y2 = event.getY();
 
                 float diffX = x2 - x1;
                 float diffY = y2 - y1;
@@ -287,7 +284,7 @@ public class ListAllActivity extends AppCompatActivity {
         return super.dispatchTouchEvent(event);
     }
 
-    public void setFocus(int pos, boolean focus) {
+    private void setFocus(int pos, boolean focus) {
         if(pos == 0)
             lv.setSelectionAfterHeaderView();
         else if(pos<=lv.getFirstVisiblePosition())
@@ -360,7 +357,7 @@ public class ListAllActivity extends AppCompatActivity {
             setFocus(focused, true);
     }
 
-    public void moveUp() {
+    private void moveUp() {
         if (focused > 0) {
             setFocus(focused, false);
             l.add(focused - 1, l.remove(focused));
@@ -377,7 +374,7 @@ public class ListAllActivity extends AppCompatActivity {
         moveUp();
     }
 
-    public void moveDown() {
+    private void moveDown() {
         if (focused != -1 && focused != l.size() - 1) {
             l.add(focused + 1, l.remove(focused));
             setFocus(focused, false);
@@ -394,7 +391,7 @@ public class ListAllActivity extends AppCompatActivity {
         moveDown();
     }
 
-    public void complete() {
+    private void complete() {
         if (focused != -1) {
             l.remove(focused);
             setFocus(focused, false);
@@ -408,10 +405,9 @@ public class ListAllActivity extends AppCompatActivity {
         complete();
     }
 
-    public void edit() {
+    private void edit() {
         if (focused != -1) {
             final Task tsk = l.get(focused);
-            String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
             b.setTitle(getResources().getString(R.string.add_new_lbl));
 
@@ -523,11 +519,11 @@ public class ListAllActivity extends AppCompatActivity {
         edit();
     }
 
-    public void back() {
+    private void back() {
         t = new Tasks(l);
         Intent i = new Intent(ListAllActivity.this, MainActivity.class);
         i.putExtra("sender", "listAll");
-        i.putExtra("list", (Parcelable) t);
+        i.putExtra("list", t);
         i.putExtra("colors", colors);
         i.putExtra("notification", notification);
 
@@ -535,12 +531,12 @@ public class ListAllActivity extends AppCompatActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    public void update() {
+    private void update() {
         aa.notifyDataSetChanged();
         color();
     }
 
-    public void message(String message) {
+    private void message(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
@@ -549,7 +545,7 @@ public class ListAllActivity extends AppCompatActivity {
         back();
     }
 
-    public void tutorial() {
+    private void tutorial() {
         message("Tutorial");
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
@@ -570,32 +566,7 @@ public class ListAllActivity extends AppCompatActivity {
         b.create().show();*/
     }
 
-    public void showNotification() {
-        NotificationCompat.Builder nBuild = new NotificationCompat.Builder(this);
-        nBuild.setContentTitle(t.getFirst().getName());
-        nBuild.setContentText(t.getFirst().getDescription());
-        nBuild.setSmallIcon(android.R.drawable.ic_popup_reminder);
-        nBuild.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-
-        Intent resInt = new Intent(this, MainActivity.class);
-        PendingIntent pInt = PendingIntent.getActivity(this, 0, resInt, PendingIntent.FLAG_UPDATE_CURRENT);
-        nBuild.setContentIntent(pInt);
-
-        nBuild.setOngoing(true);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, NotificationReciever.class).putExtra("Action", "complete"), PendingIntent.FLAG_UPDATE_CURRENT);
-        nBuild.addAction(android.R.drawable.ic_popup_reminder, "complete", pendingIntent);
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, nBuild.build());
-    }
-
-    public void cancelNotification() {
-        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
-    }
-
-    public void save() {
+    private void save() {
         LinkedList<Task> tsks = t.getAll();
         try {
             new File(filePath + "data").createNewFile();
@@ -615,21 +586,20 @@ public class ListAllActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("colors ").append(Boolean.toString(colors));
-            sb.append("\n");
-            sb.append("notification ").append(Boolean.toString(notification));
+            String sb = "colors " + Boolean.toString(colors) +
+                    "\n" +
+                    "notification " + Boolean.toString(notification);
 
             new File(filePath + "settings").createNewFile();
             OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb.toString());
+            os.write(sb);
             os.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void load() {
+    private void load() {
         StringBuilder temp = new StringBuilder();
         try {
             InputStream is = openFileInput("data");
@@ -639,7 +609,7 @@ public class ListAllActivity extends AppCompatActivity {
                 String rec;
 
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec+"\n");
+                    temp.append(rec).append("\n");
                 }
                 is.close();
             }

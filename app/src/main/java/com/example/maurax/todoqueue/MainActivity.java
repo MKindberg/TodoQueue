@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -33,7 +32,6 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -79,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
 
         relLay.setOnTouchListener(new View.OnTouchListener() {
 
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     Intent i = new Intent(MainActivity.this, ListAllActivity.class);
-                    i.putExtra("list", (Parcelable) t);
+                    i.putExtra("list", t);
                     i.putExtra("colors", colors);
                     i.putExtra("notification", notification);
                     MainActivity.this.startActivity(i);
@@ -169,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tutorial() {
+    private void tutorial() {
         final File f = new File(filePath + "tutorial");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage("Swipe towards the edges or press them to handle the list of tasks.\n" +
@@ -193,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
         b.create().show();
     }
 
-    public void add() {
+    private void add() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setTitle(getResources().getString(R.string.add_new_lbl));
 
@@ -307,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
         add();
     }
 
-    public void complete() {
+    private void complete() {
         if (t.complete())
             animate("complete");
         else
@@ -318,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
         complete();
     }
 
-    public void putLast() {
+    private void putLast() {
         Task tsk = t.getFirst();
         if (t.toLast()) {
             name = tsk.getName();
@@ -333,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
         putLast();
     }
 
-    public void postpone() {
+    private void postpone() {
         Task tsk = t.getFirst();
         if (t.postpone()) {
             name = tsk.getName();
@@ -348,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
         postpone();
     }
 
-    public void updateBack() {
+    private void updateBack() {
         Task task = t.getFirst();
         if (task != null) {
             updateBack(task.getName(), task.getDescription(), task.getPriority());
@@ -357,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void updateBack(String name, String desc, int prio) {
+    private void updateBack(String name, String desc, int prio) {
         TextView tvTask = (TextView) findViewById(R.id.TaskViewBack);
         TextView tvDesc = (TextView) findViewById(R.id.DescViewBack);
         TextView tvPrio = (TextView) findViewById(R.id.PrioTextBack);
@@ -370,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
         color(findViewById(R.id.textGroupBack), prio);
     }
 
-    public void update() {
+    private void update() {
         Task task = t.getFirst();
         if (task != null) {
             update(task.getName(), task.getDescription(), task.getPriority());
@@ -379,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void update(String name, String desc, int prio) {
+    private void update(String name, String desc, int prio) {
         TextView tvTask = (TextView) findViewById(R.id.TaskView);
         TextView tvDesc = (TextView) findViewById(R.id.DescView);
         TextView tvPrio = (TextView) findViewById(R.id.PrioText);
@@ -392,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
         color(findViewById(R.id.textGroup), prio);
     }
 
-    public void color(View tg, int prio) {
+    private void color(View tg, int prio) {
         GradientDrawable gd = new GradientDrawable();
         gd.setStroke(3, Color.BLACK);
         gd.setCornerRadius(5);
@@ -425,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         tg.setBackground(gd);
     }
 
-    public void message(String message) {
+    private void message(String message) {
 
         Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
         toast.show();
@@ -529,7 +527,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void load() {
+    private void load() {
         if (!new File(filePath + "data").exists()) {
             t = new Tasks();
             return;
@@ -542,7 +540,7 @@ public class MainActivity extends AppCompatActivity {
                 BufferedReader br = new BufferedReader(isr);
                 String rec;
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec + "\n");
+                    temp.append(rec).append("\n");
                 }
                 is.close();
             }
@@ -576,8 +574,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -585,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
         update();
     }
 
-    public void save() {
+    private void save() {
         LinkedList<Task> tsks = t.getAll();
         try {
             new File(filePath + "data").createNewFile();
@@ -605,21 +601,20 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("colors ").append(Boolean.toString(colors));
-            sb.append("\n");
-            sb.append("notification ").append(Boolean.toString(notification));
+            String sb = "colors " + Boolean.toString(colors) +
+                    "\n" +
+                    "notification " + Boolean.toString(notification);
 
             new File(filePath + "settings").createNewFile();
             OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb.toString());
+            os.write(sb);
             os.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void menu(View v) {
+    private void menu(View v) {
         popup.show();
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
