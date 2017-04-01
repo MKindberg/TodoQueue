@@ -114,9 +114,10 @@ public class NotificationReciever extends BroadcastReceiver {
 
     private void save() {
 
-
         Intent i = new Intent(con, NewAppWidget.class);
         i.setAction(NewAppWidget.ACTION_UPDATE);
+        con.sendBroadcast(i);
+
         LinkedList<Task> tsks = t.getAll();
         try {
             OutputStreamWriter os = new OutputStreamWriter(con.openFileOutput("data", Context.MODE_PRIVATE));
