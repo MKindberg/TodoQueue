@@ -64,22 +64,25 @@ public class ListAllActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
+        Log.i("Test", "1");
+
+        readIntent();
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
-        Log.i("ListView", lv.toString());
+
         aa = new ListAllAdapter(this, R.layout.listitem, l);
         Log.i("AA", aa.toString());
         lv.setAdapter(aa);
-
+        Log.i("Test", "3");
         filePath = getFilesDir().toString();
 
-        readIntent();
+
 
         createMenu();
 
         setListeners();
-
+        Log.i("Test", "4");
         checkTutorial();
 //        update();
         lv.post(new Runnable() {
@@ -88,7 +91,7 @@ public class ListAllActivity extends AppCompatActivity {
                 color();
             }
         });
-
+        Log.i("Test", "5");
     }
 
     private void createMenu() {
@@ -130,6 +133,7 @@ public class ListAllActivity extends AppCompatActivity {
 
         });
 
+        assert relLay != null;
         lv.setOnTouchListener(new View.OnTouchListener() {
             private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -147,9 +151,7 @@ public class ListAllActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
-                if(event.getAction() != MotionEvent.ACTION_UP && focused!=-1)
-                    return true;
-                return false;
+                return event.getAction() != MotionEvent.ACTION_UP && focused != -1;
             }
         });
 
