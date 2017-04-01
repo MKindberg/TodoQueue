@@ -60,35 +60,13 @@ public class NewAppWidget extends AppWidgetProvider {
     }
 
     public void load(){
-        StringBuilder temp = new StringBuilder();
-        try {
-            InputStream is = con.openFileInput("data");
-            if (is != null) {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String rec;
-
-                while ((rec = br.readLine()) != null) {
-                    temp.append(rec);
-                }
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String d = temp.toString();
-        String[] data = d.split("--");
-        LinkedList<Task> ll = new LinkedList<>();
-        for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].substring(1), data[i + 1].substring(1), Integer.parseInt(data[i + 2])));
-        t = new Tasks(ll);
+        t = Util.loadTasks(con);
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        Toast.makeText(context, "recieved",
-                Toast.LENGTH_LONG).show();
+        
         if (intent.getAction().equals(ACTION_UPDATE)) {
             AppWidgetManager awm = AppWidgetManager.getInstance(context);
             ComponentName thisAppWidget = new ComponentName(context.getPackageName(), NewAppWidget.class.getName());

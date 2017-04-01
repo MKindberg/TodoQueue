@@ -369,9 +369,9 @@ public class ListAllActivity extends AppCompatActivity {
             update();
             //setFocus(focused, true);
         } else if (focused == -1)
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
         else
-            message(getResources().getString(R.string.lv_cant_up));
+            Util.message(getResources().getString(R.string.lv_cant_up), this);
     }
 
     public void moveUp(View v) {
@@ -386,9 +386,9 @@ public class ListAllActivity extends AppCompatActivity {
             update();
             //setFocus(focused, true);
         } else if (focused == -1)
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
         else
-            message(getResources().getString(R.string.lv_cant_down));
+            Util.message(getResources().getString(R.string.lv_cant_down), this);
     }
 
     public void moveDown(View v) {
@@ -402,7 +402,7 @@ public class ListAllActivity extends AppCompatActivity {
             focused = -1;
             update();
         } else
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
     }
 
     public void complete(View v) {
@@ -517,7 +517,7 @@ public class ListAllActivity extends AppCompatActivity {
 
             b.create().show();
         } else
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
     }
 
     public void edit(View v) {
@@ -541,17 +541,13 @@ public class ListAllActivity extends AppCompatActivity {
         color();
     }
 
-    public void message(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
     @Override
     public void onBackPressed() {
         back();
     }
 
     public void tutorial() {
-        message("Tutorial");
+        Util.message("Tutorial", this);
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage(getResources().getString(R.string.instructions) + ":\n" +
@@ -571,88 +567,14 @@ public class ListAllActivity extends AppCompatActivity {
         b.create().show();*/
     }
 
-    public void showNotification() {
-        NotificationCompat.Builder nBuild = new NotificationCompat.Builder(this);
-        nBuild.setContentTitle(t.getFirst().getName());
-        nBuild.setContentText(t.getFirst().getDescription());
-        nBuild.setSmallIcon(android.R.drawable.ic_popup_reminder);
-        nBuild.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-
-        Intent resInt = new Intent(this, MainActivity.class);
-        PendingIntent pInt = PendingIntent.getActivity(this, 0, resInt, PendingIntent.FLAG_UPDATE_CURRENT);
-        nBuild.setContentIntent(pInt);
-
-        nBuild.setOngoing(true);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, NotificationReciever.class).putExtra("Action", "complete"), PendingIntent.FLAG_UPDATE_CURRENT);
-        nBuild.addAction(android.R.drawable.ic_popup_reminder, "complete", pendingIntent);
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, nBuild.build());
-    }
-
-    public void cancelNotification() {
-        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
-    }
-
     public void save() {
-        LinkedList<Task> tsks = t.getAll();
-        try {
-            new File(filePath + "data").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("data", Context.MODE_PRIVATE));
-            StringBuilder sb = new StringBuilder();
-            for (Task tsk : tsks) {
-                sb.append("T").append(tsk.getName());
-                sb.append("\n--\n");
-                sb.append("D").append(tsk.getDescription());
-                sb.append("\n--\n");
-                sb.append(tsk.getPriority());
-                sb.append("\n--\n");
-            }
-            os.write(sb.toString());
-            os.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("colors ").append(Boolean.toString(colors));
-            sb.append("\n");
-            sb.append("notification ").append(Boolean.toString(notification));
-
-            new File(filePath + "settings").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb.toString());
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Util.saveTasks(t, this);
+        Util.saveOptions(colors, notification, this);
+        Util.updateWidget(this);
     }
 
     public void load() {
-        StringBuilder temp = new StringBuilder();
-        try {
-            InputStream is = openFileInput("data");
-            if (is != null) {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String rec;
-
-                while ((rec = br.readLine()) != null) {
-                    temp.append(rec+"\n");
-                }
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String d = temp.toString();
-        String[] data = d.split("--");
-        LinkedList<Task> ll = new LinkedList<>();
-        for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
-        t = new Tasks(ll);
+        t = Util.loadTasks(this);
     }
 
     @Override

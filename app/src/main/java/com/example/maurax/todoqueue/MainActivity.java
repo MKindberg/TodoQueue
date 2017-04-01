@@ -40,6 +40,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 
+import static com.example.maurax.todoqueue.Util.loadOptions;
+import static com.example.maurax.todoqueue.Util.loadTasks;
+
 public class MainActivity extends AppCompatActivity {
 
     private Tasks t;
@@ -311,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
         if (t.complete())
             animate("complete");
         else
-            message(getResources().getString(R.string.list_empty_toast));
+            Util.message(getResources().getString(R.string.list_empty_toast), this);
     }
 
     public void complete(View v) {
@@ -326,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
             prio = tsk.getPriority();
             animate("putLast");
         } else
-            message(getResources().getString(R.string.list_empty_toast));
+            Util.message(getResources().getString(R.string.list_empty_toast), this);
     }
 
     public void putLast(View v) {
@@ -341,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
             prio = tsk.getPriority();
             animate("postpone");
         } else
-            message(getString(R.string.list_empty_toast));
+            Util.message(getString(R.string.list_empty_toast), this);
     }
 
     public void postpone(View v) {
@@ -425,24 +428,6 @@ public class MainActivity extends AppCompatActivity {
         tg.setBackground(gd);
     }
 
-    public void message(String message) {
-
-        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        toast.show();
-
-
-        /*AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setMessage(message);
-        b.setPositiveButton("OK!", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        b.setCancelable(true);
-        b.create().show();*/
-    }
-
     private void animate(String outDir) {
 
         final View tf = findViewById(R.id.textGroup);
@@ -518,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                 update();
                 tf.startAnimation(out);
             } else
-                message("Last item");
+                Util.message("Last item", this);
         else if (outDir.equals("add")) {
             updateBack(name, desc, prio);
             tfb.startAnimation(out);
@@ -530,93 +515,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void load() {
-        if (!new File(filePath + "data").exists()) {
-            t = new Tasks();
-            return;
-        }
-        StringBuilder temp = new StringBuilder();
-        try {
-            InputStream is = openFileInput("data");
-            if (is != null) {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String rec;
-                while ((rec = br.readLine()) != null) {
-                    temp.append(rec + "\n");
-                }
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        t = loadTasks(this);
+        boolean[] options = loadOptions(this);
 
-        String d = temp.toString();
-        String[] data = d.split("--");
-        LinkedList<Task> ll = new LinkedList<>();
-        for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
-        t = new Tasks(ll);
+        colors = options[0];
+        notification = options[1];
 
-        try {
-            InputStream is = openFileInput("settings");
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String rec;
-            String[] set;
-            while ((rec = br.readLine()) != null) {
-                set = rec.split(" ");
-                switch (set[0]) {
-                    case "colors":
-                        colors = Boolean.parseBoolean(set[1]);
-                        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-                        break;
-                    case "notification":
-                        notification = Boolean.parseBoolean(set[1]);
-                        popup.getMenu().findItem(R.id.notifyOp).setChecked(colors);
-                        break;
-                }
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(colors);
 
         update();
     }
 
     public void save() {
-        LinkedList<Task> tsks = t.getAll();
-        try {
-            new File(filePath + "data").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("data", Context.MODE_PRIVATE));
-            StringBuilder sb = new StringBuilder();
-            for (Task tsk : tsks) {
-                sb.append("T").append(tsk.getName());
-                sb.append("\n--\n");
-                sb.append("D").append(tsk.getDescription());
-                sb.append("\n--\n");
-                sb.append(tsk.getPriority());
-                sb.append("\n--\n");
-            }
-            os.write(sb.toString());
-            os.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("colors ").append(Boolean.toString(colors));
-            sb.append("\n");
-            sb.append("notification ").append(Boolean.toString(notification));
-
-            new File(filePath + "settings").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb.toString());
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Util.saveTasks(t, this);
+        Util.saveOptions(colors, notification, this);
+        Util.updateWidget(this);
     }
 
     public void menu(View v) {
