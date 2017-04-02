@@ -45,9 +45,12 @@ public class Tasks implements Parcelable {
 
     public void sort() {
         Collections.sort(tasks);
-
     }
 
+    /**
+     * Removes first task
+     * @return true if list not empty
+     */
     public boolean complete() {
         if (tasks.isEmpty())
             return false;
@@ -55,6 +58,10 @@ public class Tasks implements Parcelable {
         return true;
     }
 
+    /**
+     * Swaps the first and second task
+     * @return true if list not empty
+     */
     public boolean postpone() {
         if (tasks.isEmpty())
             return false;
@@ -64,6 +71,10 @@ public class Tasks implements Parcelable {
         return true;
     }
 
+    /**
+     * Places first task last
+     * @return true if list not empty
+     */
     public boolean toLast() {
         if (tasks.isEmpty())
             return false;
@@ -71,6 +82,10 @@ public class Tasks implements Parcelable {
         return true;
     }
 
+    /**
+     *
+     * @return First task or null if empty
+     */
     public Task getFirst() {
         if (tasks.isEmpty())
             return null;

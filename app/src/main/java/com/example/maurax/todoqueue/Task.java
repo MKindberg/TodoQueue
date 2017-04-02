@@ -24,11 +24,22 @@ public class Task implements Parcelable, Comparable<Task> {
         this.name = name;
     }
 
+    /**
+     * Create new task with name and description
+     * @param name
+     * @param description
+     */
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
     }
 
+    /**
+     * Create new task with name, description and priority
+     * @param name
+     * @param description
+     * @param priority
+     */
     public Task(String name, String description, int priority) {
         this.name = name;
         this.description = description;
@@ -64,6 +75,10 @@ public class Task implements Parcelable, Comparable<Task> {
         return priority;
     }
 
+    /**
+     *
+     * @return The color of the tasks priority
+     */
     public int getColorId() {
         int colId=0;
         switch(priority){

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -32,11 +33,15 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.LinkedList;
+
+import static com.example.maurax.todoqueue.Util.loadOptions;
+import static com.example.maurax.todoqueue.Util.loadTasks;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -77,11 +82,11 @@ public class MainActivity extends AppCompatActivity {
 
         relLay.setOnTouchListener(new View.OnTouchListener() {
 
-            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     Intent i = new Intent(MainActivity.this, ListAllActivity.class);
-                    i.putExtra("list", t);
+                    i.putExtra("list", (Parcelable) t);
                     i.putExtra("colors", colors);
                     i.putExtra("notification", notification);
                     MainActivity.this.startActivity(i);
@@ -167,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void tutorial() {
+    public void tutorial() {
         final File f = new File(filePath + "tutorial");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage("Swipe towards the edges or press them to handle the list of tasks.\n" +
@@ -191,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         b.create().show();
     }
 
-    private void add() {
+    public void add() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setTitle(getResources().getString(R.string.add_new_lbl));
 
@@ -305,18 +310,18 @@ public class MainActivity extends AppCompatActivity {
         add();
     }
 
-    private void complete() {
+    public void complete() {
         if (t.complete())
             animate("complete");
         else
-            message(getResources().getString(R.string.list_empty_toast));
+            Util.message(getResources().getString(R.string.list_empty_toast), this);
     }
 
     public void complete(View v) {
         complete();
     }
 
-    private void putLast() {
+    public void putLast() {
         Task tsk = t.getFirst();
         if (t.toLast()) {
             name = tsk.getName();
@@ -324,14 +329,14 @@ public class MainActivity extends AppCompatActivity {
             prio = tsk.getPriority();
             animate("putLast");
         } else
-            message(getResources().getString(R.string.list_empty_toast));
+            Util.message(getResources().getString(R.string.list_empty_toast), this);
     }
 
     public void putLast(View v) {
         putLast();
     }
 
-    private void postpone() {
+    public void postpone() {
         Task tsk = t.getFirst();
         if (t.postpone()) {
             name = tsk.getName();
@@ -339,14 +344,14 @@ public class MainActivity extends AppCompatActivity {
             prio = tsk.getPriority();
             animate("postpone");
         } else
-            message(getString(R.string.list_empty_toast));
+            Util.message(getString(R.string.list_empty_toast), this);
     }
 
     public void postpone(View v) {
         postpone();
     }
 
-    private void updateBack() {
+    public void updateBack() {
         Task task = t.getFirst();
         if (task != null) {
             updateBack(task.getName(), task.getDescription(), task.getPriority());
@@ -355,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateBack(String name, String desc, int prio) {
+    public void updateBack(String name, String desc, int prio) {
         TextView tvTask = (TextView) findViewById(R.id.TaskViewBack);
         TextView tvDesc = (TextView) findViewById(R.id.DescViewBack);
         TextView tvPrio = (TextView) findViewById(R.id.PrioTextBack);
@@ -368,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
         color(findViewById(R.id.textGroupBack), prio);
     }
 
-    private void update() {
+    public void update() {
         Task task = t.getFirst();
         if (task != null) {
             update(task.getName(), task.getDescription(), task.getPriority());
@@ -377,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void update(String name, String desc, int prio) {
+    public void update(String name, String desc, int prio) {
         TextView tvTask = (TextView) findViewById(R.id.TaskView);
         TextView tvDesc = (TextView) findViewById(R.id.DescView);
         TextView tvPrio = (TextView) findViewById(R.id.PrioText);
@@ -390,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
         color(findViewById(R.id.textGroup), prio);
     }
 
-    private void color(View tg, int prio) {
+    public void color(View tg, int prio) {
         GradientDrawable gd = new GradientDrawable();
         gd.setStroke(3, Color.BLACK);
         gd.setCornerRadius(5);
@@ -421,24 +426,6 @@ public class MainActivity extends AppCompatActivity {
         }
         gd.setColor(ContextCompat.getColor(this, colId));
         tg.setBackground(gd);
-    }
-
-    private void message(String message) {
-
-        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        toast.show();
-
-
-        /*AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setMessage(message);
-        b.setPositiveButton("OK!", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        b.setCancelable(true);
-        b.create().show();*/
     }
 
     private void animate(String outDir) {
@@ -516,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
                 update();
                 tf.startAnimation(out);
             } else
-                message("Last item");
+                Util.message("Last item", this);
         else if (outDir.equals("add")) {
             updateBack(name, desc, prio);
             tfb.startAnimation(out);
@@ -527,94 +514,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void load() {
-        if (!new File(filePath + "data").exists()) {
-            t = new Tasks();
-            return;
-        }
-        StringBuilder temp = new StringBuilder();
-        try {
-            InputStream is = openFileInput("data");
-            if (is != null) {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String rec;
-                while ((rec = br.readLine()) != null) {
-                    temp.append(rec).append("\n");
-                }
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void load() {
+        t = loadTasks(this);
+        boolean[] options = loadOptions(this);
 
-        String d = temp.toString();
-        String[] data = d.split("--");
-        LinkedList<Task> ll = new LinkedList<>();
-        for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
-        t = new Tasks(ll);
+        colors = options[0];
+        notification = options[1];
 
-        try {
-            InputStream is = openFileInput("settings");
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String rec;
-            String[] set;
-            while ((rec = br.readLine()) != null) {
-                set = rec.split(" ");
-                switch (set[0]) {
-                    case "colors":
-                        colors = Boolean.parseBoolean(set[1]);
-                        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-                        break;
-                    case "notification":
-                        notification = Boolean.parseBoolean(set[1]);
-                        popup.getMenu().findItem(R.id.notifyOp).setChecked(colors);
-                        break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(colors);
 
         update();
     }
 
-    private void save() {
-        LinkedList<Task> tsks = t.getAll();
-        try {
-            new File(filePath + "data").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("data", Context.MODE_PRIVATE));
-            StringBuilder sb = new StringBuilder();
-            for (Task tsk : tsks) {
-                sb.append("T").append(tsk.getName());
-                sb.append("\n--\n");
-                sb.append("D").append(tsk.getDescription());
-                sb.append("\n--\n");
-                sb.append(tsk.getPriority());
-                sb.append("\n--\n");
-            }
-            os.write(sb.toString());
-            os.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            String sb = "colors " + Boolean.toString(colors) +
-                    "\n" +
-                    "notification " + Boolean.toString(notification);
-
-            new File(filePath + "settings").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb);
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void save() {
+        Util.saveTasks(t, this);
+        Util.saveOptions(colors, notification, this);
+        Util.updateWidget(this);
     }
 
-    private void menu(View v) {
+    public void menu(View v) {
         popup.show();
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {

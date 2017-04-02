@@ -10,5 +10,6 @@
     <color name="prio4">#66BB6A</color>
     <color name="prio5">#42A5F5</color>
     <color name="noPrio">#FFF</color>
+    <color name="transparent">#00000000</color>
 
 </resources>

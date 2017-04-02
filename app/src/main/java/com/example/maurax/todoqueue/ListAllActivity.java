@@ -1,14 +1,19 @@
 package com.example.maurax.todoqueue;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.PopupMenu;
 import android.text.InputFilter;
 import android.text.SpannableString;
@@ -53,8 +58,7 @@ public class ListAllActivity extends AppCompatActivity {
 
     private String filePath;
 
-    private float x1;
-    private float y1;
+    private float x1, x2, y1, y2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +70,9 @@ public class ListAllActivity extends AppCompatActivity {
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
-        Log.i("Test", "2");
-        aa = new ListAllAdapter(this, l);
+
+        aa = new ListAllAdapter(this, R.layout.listitem, l);
+        Log.i("AA", aa.toString());
         lv.setAdapter(aa);
         Log.i("Test", "3");
         filePath = getFilesDir().toString();
@@ -130,7 +135,7 @@ public class ListAllActivity extends AppCompatActivity {
 
         assert relLay != null;
         lv.setOnTouchListener(new View.OnTouchListener() {
-            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -161,9 +166,8 @@ public class ListAllActivity extends AppCompatActivity {
             }
         });
 
-        assert filler != null;
         filler.setOnTouchListener(new View.OnTouchListener() {
-            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -258,8 +262,8 @@ public class ListAllActivity extends AppCompatActivity {
                 y1 = event.getY();
                 return super.dispatchTouchEvent(event);
             case MotionEvent.ACTION_UP:
-                float x2 = event.getX();
-                float y2 = event.getY();
+                x2 = event.getX();
+                y2 = event.getY();
 
                 float diffX = x2 - x1;
                 float diffY = y2 - y1;
@@ -284,7 +288,7 @@ public class ListAllActivity extends AppCompatActivity {
         return super.dispatchTouchEvent(event);
     }
 
-    private void setFocus(int pos, boolean focus) {
+    public void setFocus(int pos, boolean focus) {
         if(pos == 0)
             lv.setSelectionAfterHeaderView();
         else if(pos<=lv.getFirstVisiblePosition())
@@ -357,7 +361,7 @@ public class ListAllActivity extends AppCompatActivity {
             setFocus(focused, true);
     }
 
-    private void moveUp() {
+    public void moveUp() {
         if (focused > 0) {
             setFocus(focused, false);
             l.add(focused - 1, l.remove(focused));
@@ -365,16 +369,16 @@ public class ListAllActivity extends AppCompatActivity {
             update();
             //setFocus(focused, true);
         } else if (focused == -1)
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
         else
-            message(getResources().getString(R.string.lv_cant_up));
+            Util.message(getResources().getString(R.string.lv_cant_up), this);
     }
 
     public void moveUp(View v) {
         moveUp();
     }
 
-    private void moveDown() {
+    public void moveDown() {
         if (focused != -1 && focused != l.size() - 1) {
             l.add(focused + 1, l.remove(focused));
             setFocus(focused, false);
@@ -382,32 +386,33 @@ public class ListAllActivity extends AppCompatActivity {
             update();
             //setFocus(focused, true);
         } else if (focused == -1)
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
         else
-            message(getResources().getString(R.string.lv_cant_down));
+            Util.message(getResources().getString(R.string.lv_cant_down), this);
     }
 
     public void moveDown(View v) {
         moveDown();
     }
 
-    private void complete() {
+    public void complete() {
         if (focused != -1) {
             l.remove(focused);
             setFocus(focused, false);
             focused = -1;
             update();
         } else
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
     }
 
     public void complete(View v) {
         complete();
     }
 
-    private void edit() {
+    public void edit() {
         if (focused != -1) {
             final Task tsk = l.get(focused);
+            String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
             b.setTitle(getResources().getString(R.string.add_new_lbl));
 
@@ -512,18 +517,18 @@ public class ListAllActivity extends AppCompatActivity {
 
             b.create().show();
         } else
-            message(getResources().getString(R.string.lv_please_select));
+            Util.message(getResources().getString(R.string.lv_please_select), this);
     }
 
     public void edit(View v) {
         edit();
     }
 
-    private void back() {
+    public void back() {
         t = new Tasks(l);
         Intent i = new Intent(ListAllActivity.this, MainActivity.class);
         i.putExtra("sender", "listAll");
-        i.putExtra("list", t);
+        i.putExtra("list", (Parcelable) t);
         i.putExtra("colors", colors);
         i.putExtra("notification", notification);
 
@@ -531,13 +536,9 @@ public class ListAllActivity extends AppCompatActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    private void update() {
+    public void update() {
         aa.notifyDataSetChanged();
         color();
-    }
-
-    private void message(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -545,8 +546,8 @@ public class ListAllActivity extends AppCompatActivity {
         back();
     }
 
-    private void tutorial() {
-        message("Tutorial");
+    public void tutorial() {
+        Util.message("Tutorial", this);
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage(getResources().getString(R.string.instructions) + ":\n" +
@@ -566,62 +567,14 @@ public class ListAllActivity extends AppCompatActivity {
         b.create().show();*/
     }
 
-    private void save() {
-        LinkedList<Task> tsks = t.getAll();
-        try {
-            new File(filePath + "data").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("data", Context.MODE_PRIVATE));
-            StringBuilder sb = new StringBuilder();
-            for (Task tsk : tsks) {
-                sb.append("T").append(tsk.getName());
-                sb.append("\n--\n");
-                sb.append("D").append(tsk.getDescription());
-                sb.append("\n--\n");
-                sb.append(tsk.getPriority());
-                sb.append("\n--\n");
-            }
-            os.write(sb.toString());
-            os.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            String sb = "colors " + Boolean.toString(colors) +
-                    "\n" +
-                    "notification " + Boolean.toString(notification);
-
-            new File(filePath + "settings").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(this.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb);
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void save() {
+        Util.saveTasks(t, this);
+        Util.saveOptions(colors, notification, this);
+        Util.updateWidget(this);
     }
 
-    private void load() {
-        StringBuilder temp = new StringBuilder();
-        try {
-            InputStream is = openFileInput("data");
-            if (is != null) {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String rec;
-
-                while ((rec = br.readLine()) != null) {
-                    temp.append(rec).append("\n");
-                }
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String d = temp.toString();
-        String[] data = d.split("--");
-        LinkedList<Task> ll = new LinkedList<>();
-        for (int i = 0; i < data.length - 2; i += 3)
-            ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
-        t = new Tasks(ll);
+    public void load() {
+        t = Util.loadTasks(this);
     }
 
     @Override
