@@ -20,8 +20,8 @@ import java.util.LinkedList;
 public class Util {
 
     public static void updateWidget(Context con){
-        Intent i = new Intent(con, NewAppWidget.class);
-        i.setAction(NewAppWidget.ACTION_UPDATE);
+        Intent i = new Intent(con, SimpleBackAppWidget.class);
+        i.setAction(SimpleBackAppWidget.ACTION_UPDATE);
         con.sendBroadcast(i);
     }
 

@@ -1,24 +1,23 @@
 package com.example.maurax.todoqueue;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
+import static android.R.attr.id;
 
 /**
  * Implementation of App Widget functionality.
  */
-public class NewAppWidget extends AppWidgetProvider {
+public class SimpleBackAppWidget extends AppWidgetProvider {
 
     public static String ACTION_UPDATE = "UPDATE";
 
@@ -28,12 +27,23 @@ public class NewAppWidget extends AppWidgetProvider {
     void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
-        CharSequence widgetText = t.getFirst().getName();
-        int col = t.getFirst().getColorId();
+        CharSequence widgetText = "";
+        int col = R.color.transparent;
+        if(t.getFirst()!=null) {
+            widgetText = t.getFirst().getName();
+            col = ContextCompat.getColor(con, t.getFirst().getColorId());
+        }
         // Construct the RemoteViews object
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.new_app_widget);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.simple_app_widget);
         views.setTextViewText(R.id.appwidget_text, widgetText);
-        views.setTextColor(R.id.appwidget_text, ContextCompat.getColor(con, col));
+        views.setInt(R.id.widget_layout, "setBackgroundColor", col);
+
+
+        Intent intent = new Intent(con, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+        views.setOnClickPendingIntent(R.id.appwidget_text, pendingIntent);
+        views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -66,10 +76,10 @@ public class NewAppWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        
+
         if (intent.getAction().equals(ACTION_UPDATE)) {
             AppWidgetManager awm = AppWidgetManager.getInstance(context);
-            ComponentName thisAppWidget = new ComponentName(context.getPackageName(), NewAppWidget.class.getName());
+            ComponentName thisAppWidget = new ComponentName(context.getPackageName(), SimpleBackAppWidget.class.getName());
             int[] appWidgetIds = awm.getAppWidgetIds(thisAppWidget);
             onUpdate(context, awm, appWidgetIds);
         }

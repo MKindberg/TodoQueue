@@ -128,6 +128,6 @@
     <string name="lv_cant_up">Can\'t move first item up</string>
     <string name="priority">Priority: </string>
     <string name="title_add_priority">Priority (1 is urgent)</string>
-    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_text">Task</string>
     <string name="add_widget">Add widget</string>
 </resources>
