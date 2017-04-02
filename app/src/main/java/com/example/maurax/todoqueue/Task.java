@@ -26,6 +26,7 @@ public class Task implements Parcelable, Comparable<Task> {
 
     /**
      * Create new task with name and description
+     *
      * @param name
      * @param description
      */

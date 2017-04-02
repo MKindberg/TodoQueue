@@ -49,6 +49,7 @@ public class Tasks implements Parcelable {
 
     /**
      * Removes first task
+     *
      * @return true if list not empty
      */
     public boolean complete() {

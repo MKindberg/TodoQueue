@@ -20,7 +20,7 @@ class ListAllAdapter extends ArrayAdapter<Task> {
     private final List<Task> data;
     private final Context context;
 
-    public ListAllAdapter(Context context, List<Task> objects) {
+    public ListAllAdapter(Context context, int listitem, List<Task> objects) {
         super(context, R.layout.listitem, objects);
         data = objects;
         this.context = context;

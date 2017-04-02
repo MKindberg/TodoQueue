@@ -19,13 +19,13 @@ import java.util.LinkedList;
 
 public class Util {
 
-    public static void updateWidget(Context con){
+    public static void updateWidget(Context con) {
         Intent i = new Intent(con, SimpleBackAppWidget.class);
         i.setAction(SimpleBackAppWidget.ACTION_UPDATE);
         con.sendBroadcast(i);
     }
 
-    public static void saveTasks(Tasks t, Context con){
+    public static void saveTasks(Tasks t, Context con) {
         String filePath = con.getFilesDir().toString();
 
         LinkedList<Task> tsks = t.getAll();
@@ -48,7 +48,7 @@ public class Util {
         }
     }
 
-    public static void saveOptions(boolean colors, boolean notification, Context con){
+    public static void saveOptions(boolean colors, boolean notification, Context con) {
         String filePath = con.getFilesDir().toString();
 
         try {
@@ -66,7 +66,7 @@ public class Util {
         }
     }
 
-    public static Tasks loadTasks(Context con){
+    public static Tasks loadTasks(Context con) {
         if (!new File(con.getFilesDir().toString() + "data").exists()) {
             return new Tasks();
         }
@@ -80,7 +80,7 @@ public class Util {
                 String rec;
 
                 while ((rec = br.readLine()) != null) {
-                    temp.append(rec+"\n");
+                    temp.append(rec + "\n");
                 }
                 is.close();
             }
@@ -95,7 +95,7 @@ public class Util {
         return new Tasks(ll);
     }
 
-    public static boolean[] loadOptions(Context con){
+    public static boolean[] loadOptions(Context con) {
         boolean colors = false;
         boolean notification = false;
         try {
@@ -120,7 +120,7 @@ public class Util {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new boolean[] {colors, notification};
+        return new boolean[]{colors, notification};
     }
 
     public static void message(String message, Context con) {

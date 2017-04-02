@@ -23,7 +23,7 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
 
         CharSequence widgetText = "";
         int col = R.color.transparent;
-        if(t.getFirst()!=null) {
+        if (t.getFirst() != null) {
             widgetText = t.getFirst().getName();
             col = ContextCompat.getColor(con, t.getFirst().getColorId());
         }
@@ -63,7 +63,7 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
         // Enter relevant functionality for when the last widget is disabled
     }
 
-    public void load(){
+    public void load() {
         t = Util.loadTasks(con);
     }
 
