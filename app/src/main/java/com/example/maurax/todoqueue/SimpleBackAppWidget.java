@@ -3,16 +3,11 @@ package com.example.maurax.todoqueue;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.widget.RemoteViews;
-import android.widget.Toast;
-
-import static android.R.attr.id;
 
 /**
  * Implementation of App Widget functionality.
@@ -24,8 +19,7 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
     private Tasks t;
     private Context con;
 
-    void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId) {
+    void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
         CharSequence widgetText = "";
         int col = R.color.transparent;
@@ -36,14 +30,14 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.simple_app_widget);
         views.setTextViewText(R.id.appwidget_text, widgetText);
-        views.setInt(R.id.widget_layout, "setBackgroundColor", col);
+
+        views.setInt(R.id.appwidget_text, "setBackgroundColor", col);
 
 
         Intent intent = new Intent(con, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         views.setOnClickPendingIntent(R.id.appwidget_text, pendingIntent);
-        views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
