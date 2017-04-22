@@ -2,10 +2,7 @@ package com.example.maurax.todoqueue;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.io.Serializable;
-
-import static android.os.Build.VERSION_CODES.M;
+import android.support.annotation.NonNull;
 
 public class Task implements Parcelable, Comparable<Task> {
 
@@ -29,6 +26,7 @@ public class Task implements Parcelable, Comparable<Task> {
 
     /**
      * Create new task with name and description
+     *
      * @param name
      * @param description
      */
@@ -49,7 +47,7 @@ public class Task implements Parcelable, Comparable<Task> {
         this.priority = priority;
     }
 
-    public Task(Parcel in) {
+    private Task(Parcel in) {
         String[] data = new String[3];
         in.readStringArray(data);
         this.name = data[0];
@@ -127,7 +125,7 @@ public class Task implements Parcelable, Comparable<Task> {
     }
 
     @Override
-    public int compareTo(Task another) {
+    public int compareTo(@NonNull Task another) {
         return Integer.compare(priority, another.getPriority());
     }
 }

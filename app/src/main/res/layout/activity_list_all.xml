@@ -84,12 +84,6 @@
                 android:id="@+id/listView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/buttonBot"
-                android:layout_below="@id/buttonTop"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@id/buttonRight"
-                android:layout_toRightOf="@id/buttonLeft"
 
                 android:background="@drawable/bg_key" />
         </TableRow>
