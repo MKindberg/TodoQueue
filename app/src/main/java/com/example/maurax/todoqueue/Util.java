@@ -19,9 +19,17 @@ import java.util.LinkedList;
 
 public class Util {
 
+    public static String ACTION_UPDATE = "UPDATE";
+
+    public static void updateNotification(Context con){
+        Intent i = new Intent(con, NotificationReciever.class);
+        i.setAction(ACTION_UPDATE);
+        con.sendBroadcast(i);
+    }
+
     public static void updateWidget(Context con) {
         Intent i = new Intent(con, SimpleBackAppWidget.class);
-        i.setAction(SimpleBackAppWidget.ACTION_UPDATE);
+        i.setAction(ACTION_UPDATE);
         con.sendBroadcast(i);
     }
 

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <EditText
+        android:id="@+id/popup_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Task"
+        />
+
+    <EditText
+        android:id="@+id/popup_desc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ems="100"
+        android:gravity="top"
+        android:minLines="5"
+        android:inputType="textMultiLine"
+        android:hint="Description"
+        android:layout_weight="1"
+        />
+
+    <SeekBar
+        android:id="@+id/popup_seek"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="4"
+        android:progress="2"
+        />
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:layout_gravity="bottom"
+        >
+        <Button
+            android:id="@+id/popup_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            android:layout_alignParentEnd="true"
+            android:onClick="pop_add"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+
+            />
+        <Button
+            android:id="@+id/popup_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:onClick="pop_cancel"
+            android:layout_toLeftOf="@id/popup_add"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            />
+
+
+    </RelativeLayout>
+</LinearLayout>

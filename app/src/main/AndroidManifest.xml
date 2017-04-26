@@ -18,6 +18,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <receiver android:name=".NotificationReciever" />
@@ -33,6 +35,13 @@
             android:name=".ListAllActivity"
             android:label="@string/title_activity_list_all"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity
+            android:name=".AddPopup"
+            android:label="AddPopup"
+            android:theme="@style/Theme.Transparent"
+            android:configChanges="orientation|screenSize"
+            android:autoRemoveFromRecents="true"/>
 
         <receiver
             android:label="Simple Widget"

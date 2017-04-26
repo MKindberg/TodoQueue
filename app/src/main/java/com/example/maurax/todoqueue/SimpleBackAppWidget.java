@@ -14,8 +14,6 @@ import android.widget.RemoteViews;
  */
 public class SimpleBackAppWidget extends AppWidgetProvider {
 
-    public static String ACTION_UPDATE = "UPDATE";
-
     private Tasks t;
     private Context con;
 
@@ -71,7 +69,7 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
 
-        if (intent.getAction().equals(ACTION_UPDATE)) {
+        if (intent.getAction().equals(Util.ACTION_UPDATE)) {
             AppWidgetManager awm = AppWidgetManager.getInstance(context);
             ComponentName thisAppWidget = new ComponentName(context.getPackageName(), SimpleBackAppWidget.class.getName());
             int[] appWidgetIds = awm.getAppWidgetIds(thisAppWidget);

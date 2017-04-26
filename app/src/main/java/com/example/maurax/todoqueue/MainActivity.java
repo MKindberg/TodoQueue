@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
         if (task != null) {
             updateBack(task.getName(), task.getDescription(), task.getPriority());
         } else {
-            updateBack(getString(R.string.empty), getString(R.string.please_add), -1);
+            updateBack(getString(R.string.empty), getString(R.string.please_add), 0);
         }
     }
 
@@ -416,6 +416,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             colId = R.color.noPrio;
         }
+        if(prio==0)
+            colId=R.color.light_grey;
         gd.setColor(ContextCompat.getColor(this, colId));
         tg.setBackground(gd);
     }
