@@ -1,0 +1,20 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="add"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_add"
+        android:shortcutShortLabel="@string/compose_shortcut_short_label1"
+        android:shortcutLongLabel="@string/compose_shortcut_long_label1"
+        android:shortcutDisabledMessage="@string/compose_disabled_message1">
+        >
+        <intent
+            android:action="android.intent.action.ADDNEW"
+            android:targetPackage="com.example.maurax.todoqueue"
+            android:targetClass="com.example.maurax.todoqueue.AddPopup" />
+        <!-- If your shortcut is associated with multiple intents, include them
+             here. The last intent in the list determines what the user sees when
+             they launch this shortcut. -->
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <!-- Specify more shortcuts here. -->
+</shortcuts>
