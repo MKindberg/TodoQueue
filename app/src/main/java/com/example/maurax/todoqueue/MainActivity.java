@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity {
         notification = options[1];
 
         popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
 
         update();
     }
