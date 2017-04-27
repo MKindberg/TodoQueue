@@ -35,19 +35,21 @@ public class AddPopup extends Activity {
     private EditText inDesc;
     private SeekBar inSeek;
     private Tasks t;
+    private boolean notificaion;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.popup_add); //TODO Skapa en layout
+        setContentView(R.layout.popup_add);
 
         inTask = (EditText) findViewById(R.id.popup_task);
         inDesc = (EditText) findViewById(R.id.popup_desc);
         inSeek = (SeekBar) findViewById(R.id.popup_seek);
 
         t = Util.loadTasks(this);
-        //TODO load settings and save notification option
+
+        notificaion = Util.loadOptions(this)[1];
 
     }
 
@@ -58,7 +60,8 @@ public class AddPopup extends Activity {
         t.add(name, desc, prio);
         Util.saveTasks(t, this);
         Util.updateWidget(this);
-        //TODO createnotification if option is on
+        if(t.size()==1 && notificaion)
+            Util.updateNotification(this);
         finish();
     }
 
