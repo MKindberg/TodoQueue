@@ -103,6 +103,11 @@ public class Util {
         return new Tasks(ll);
     }
 
+    /**
+     * Loads the options from file
+     * @param con
+     * @return The options as an array [colors, notification]
+     */
     public static boolean[] loadOptions(Context con) {
         boolean colors = false;
         boolean notification = false;

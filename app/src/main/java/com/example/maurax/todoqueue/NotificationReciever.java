@@ -60,17 +60,18 @@ public class NotificationReciever extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         con = context;
         load();
-        switch (intent.getStringExtra("action")) {
-            case "put last":
-                t.toLast();
-                break;
-            case "postpone":
-                t.postpone();
-                break;
-            case "complete":
-                t.complete();
-                break;
-        }
+        if(intent.getStringExtra("action")!=null)
+            switch (intent.getStringExtra("action")) {
+                case "put last":
+                    t.toLast();
+                    break;
+                case "postpone":
+                    t.postpone();
+                    break;
+                case "complete":
+                    t.complete();
+                    break;
+            }
         Task tsk = t.getFirst();
         if (tsk != null) {
             showNotification(tsk.getName(), tsk.getDescription().replace("\n", "  //  "), tsk.getColorId(), con);
