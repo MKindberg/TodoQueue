@@ -3,9 +3,9 @@ package com.example.maurax.todoqueue;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Path;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -34,6 +35,7 @@ import java.io.IOException;
 
 import static com.example.maurax.todoqueue.Util.loadOptions;
 import static com.example.maurax.todoqueue.Util.loadTasks;
+import static com.example.maurax.todoqueue.Util.message;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,8 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private String filePath;
 
     private PopupMenu popup;
-    private boolean colors = false;
-    private boolean notification = false;
+    private Options options;
 
     private float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
@@ -61,11 +62,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         t = new Tasks();
 
-        createMenu();
-
         filePath = this.getFilesDir().getPath();
 
+        options = new Options();
+
+        createMenu();
+
         readIntent();
+
+
 
         update();
         updateBack();
@@ -74,13 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
         relLay.setOnTouchListener(new View.OnTouchListener() {
 
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     Intent i = new Intent(MainActivity.this, ListAllActivity.class);
-                    i.putExtra("list", (Parcelable) t);
-                    i.putExtra("colors", colors);
-                    i.putExtra("notification", notification);
+                    i.putExtra("list", t);
+                    i.putExtra("options", options);
                     MainActivity.this.startActivity(i);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     return super.onDoubleTap(e);
@@ -134,7 +138,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void createMenu() {
         popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
-        getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
     }
 
     private void readIntent() {
@@ -146,10 +152,9 @@ public class MainActivity extends AppCompatActivity {
         }
     else {
             t = in.getParcelableExtra("list");
-            colors = in.getBooleanExtra("colors", false);
-            notification = in.getBooleanExtra("notification", false);
-            popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-            popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+            options = in.getParcelableExtra("options");
+            popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+            popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
         }
     }
     private void checkTutorial() {
@@ -164,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tutorial() {
+    private void tutorial() {
         final File f = new File(filePath + "tutorial");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage("Swipe towards the edges or press them to handle the list of tasks.\n" +
@@ -188,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         b.create().show();
     }
 
-    public void add() {
+    private void add() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setTitle(getResources().getString(R.string.add_new_lbl));
 
@@ -302,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
         add();
     }
 
-    public void complete() {
+    private void complete() {
         if (t.complete())
             animate("complete");
         else
@@ -313,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
         complete();
     }
 
-    public void putLast() {
+    private void putLast() {
         Task tsk = t.getFirst();
         if (t.toLast()) {
             name = tsk.getName();
@@ -328,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
         putLast();
     }
 
-    public void postpone() {
+    private void postpone() {
         Task tsk = t.getFirst();
         if (t.postpone()) {
             name = tsk.getName();
@@ -343,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
         postpone();
     }
 
-    public void updateBack() {
+    private void updateBack() {
         Task task = t.getFirst();
         if (task != null) {
             updateBack(task.getName(), task.getDescription(), task.getPriority());
@@ -352,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void updateBack(String name, String desc, int prio) {
+    private void updateBack(String name, String desc, int prio) {
         TextView tvTask = (TextView) findViewById(R.id.TaskViewBack);
         TextView tvDesc = (TextView) findViewById(R.id.DescViewBack);
         TextView tvPrio = (TextView) findViewById(R.id.PrioTextBack);
@@ -365,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
         color(findViewById(R.id.textGroupBack), prio);
     }
 
-    public void update() {
+    private void update() {
         Task task = t.getFirst();
         if (task != null) {
             update(task.getName(), task.getDescription(), task.getPriority());
@@ -374,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void update(String name, String desc, int prio) {
+    private void update(String name, String desc, int prio) {
         TextView tvTask = (TextView) findViewById(R.id.TaskView);
         TextView tvDesc = (TextView) findViewById(R.id.DescView);
         TextView tvPrio = (TextView) findViewById(R.id.PrioText);
@@ -387,12 +392,12 @@ public class MainActivity extends AppCompatActivity {
         color(findViewById(R.id.textGroup), prio);
     }
 
-    public void color(View tg, int prio) {
+    private void color(View tg, int prio) {
         GradientDrawable gd = new GradientDrawable();
         gd.setStroke(3, Color.BLACK);
         gd.setCornerRadius(5);
         int colId;
-        if (colors) {
+        if (options.colors) {
             switch (prio) {
                 case 1:
                     colId = R.color.prio1;
@@ -508,22 +513,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void load() {
-        t = loadTasks(this);
-        boolean[] options = loadOptions(this);
+    private void load() {
+        options = loadOptions(this);
+        t = loadTasks(options.list, this);
 
-        colors = options[0];
-        notification = options[1];
-
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
 
         update();
     }
 
-    public void save() {
-        Util.saveTasks(t, this);
-        Util.saveOptions(colors, notification, this);
+    private void save() {
+        Util.saveTasks(t, options.list, this);
+        Util.saveOptions(options, this);
         Util.updateWidget(this);
     }
 
@@ -544,21 +546,83 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.colorsOp:
                         item.setChecked(!item.isChecked());
-                        colors = item.isChecked();
+                        options.colors = item.isChecked();
                         update();
                         updateBack();
                         popup.show();
                         return true;
                     case R.id.notifyOp:
                         item.setChecked(!item.isChecked());
-                        notification = item.isChecked();
+                        options.notification = item.isChecked();
                         popup.show();
                         return true;
+                    case R.id.listOp:
+                        listDialog();
+
+                        return true;
+
                     default:
                         return false;
                 }
             }
         });
+
+    }
+
+    private void listDialog(){
+        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        builderSingle.setTitle("Select a list:");
+
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+        arrayAdapter.addAll(Util.loadLists(this));
+        arrayAdapter.add("Add new");
+
+        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String strName = arrayAdapter.getItem(which);
+                if(strName.equals("Add new")){
+                    AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
+                    builderInner.setTitle("New list name:");
+
+                    final EditText ETname = new EditText(MainActivity.this);
+                    builderInner.setView(ETname);
+
+                    builderInner.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builderInner.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String name = String.valueOf(ETname.getText());
+                            if(name.equals(""))
+                                Util.message("List must have a name", MainActivity.this);
+                            else{
+                                options.list = name;
+                                save();
+                                load();
+                            }
+                        }
+                    });
+                    builderInner.show();
+                }else
+                    options.list = strName;
+                save();
+                load();
+            }
+        });
+        builderSingle.show();
 
     }
 
@@ -572,7 +636,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         save();
-        if(notification && t.size()!=0)
+        if(options.notification && t.size()!=0)
             NotificationReciever.showNotification(t.getFirst().getName(), t.getFirst().getDescription(), t.getFirst().getColorId(), this);
     }
 

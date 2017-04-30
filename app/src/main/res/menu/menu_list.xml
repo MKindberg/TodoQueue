@@ -10,6 +10,11 @@
         android:id="@+id/sortOp"
         />
     <item
+        android:title="Lists"
+        android:id="@+id/listOp"
+        />
+
+    <item
         android:title="Use colors"
         android:checkable="true"
         android:id="@+id/colorsOp"
@@ -19,4 +24,5 @@
         android:checkable="true"
         android:id="@+id/notifyOp"
         />
+
 </menu>

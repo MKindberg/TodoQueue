@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +13,6 @@ import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -43,28 +41,26 @@ public class ListAllActivity extends AppCompatActivity {
     private int focused = -1;
 
     private PopupMenu popup;
-    private boolean colors;
-    private boolean notification;
+    private Options options;
 
     private String filePath;
 
-    private float x1, x2, y1, y2;
+    private float x1;
+    private float y1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
-        Log.i("Test", "1");
 
+        options = new Options();
         readIntent();
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
 
         aa = new ListAllAdapter(this, R.layout.listitem, l);
-        Log.i("AA", aa.toString());
         lv.setAdapter(aa);
-        Log.i("Test", "3");
         filePath = getFilesDir().toString();
 
 
@@ -72,7 +68,6 @@ public class ListAllActivity extends AppCompatActivity {
         createMenu();
 
         setListeners();
-        Log.i("Test", "4");
         checkTutorial();
 //        update();
         lv.post(new Runnable() {
@@ -81,22 +76,20 @@ public class ListAllActivity extends AppCompatActivity {
                 color();
             }
         });
-        Log.i("Test", "5");
     }
 
     private void createMenu() {
         popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
         popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
     }
 
     private void readIntent() {
         Intent i = getIntent();
         t = i.getParcelableExtra("list");
         l = t.getAll();
-        colors = i.getBooleanExtra("colors", false);
-        notification = i.getBooleanExtra("notification", false);
+        options = i.getParcelableExtra("options");
     }
 
     private void setListeners() {
@@ -125,7 +118,7 @@ public class ListAllActivity extends AppCompatActivity {
 
         assert relLay != null;
         lv.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -157,7 +150,7 @@ public class ListAllActivity extends AppCompatActivity {
         });
 
         filler.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -226,13 +219,13 @@ public class ListAllActivity extends AppCompatActivity {
                         return true;
                     case R.id.colorsOp:
                         item.setChecked(!item.isChecked());
-                        colors = item.isChecked();
+                        options.colors = item.isChecked();
                         color();
                         popup.show();
                         return true;
                     case R.id.notifyOp:
                         item.setChecked(!item.isChecked());
-                        notification = item.isChecked();
+                        options.notification = item.isChecked();
                         popup.show();
                         return true;
                     default:
@@ -252,8 +245,8 @@ public class ListAllActivity extends AppCompatActivity {
                 y1 = event.getY();
                 return super.dispatchTouchEvent(event);
             case MotionEvent.ACTION_UP:
-                x2 = event.getX();
-                y2 = event.getY();
+                float x2 = event.getX();
+                float y2 = event.getY();
 
                 float diffX = x2 - x1;
                 float diffY = y2 - y1;
@@ -278,7 +271,7 @@ public class ListAllActivity extends AppCompatActivity {
         return super.dispatchTouchEvent(event);
     }
 
-    public void setFocus(int pos, boolean focus) {
+    private void setFocus(int pos, boolean focus) {
         if(pos == 0)
             lv.setSelectionAfterHeaderView();
         else if(pos<=lv.getFirstVisiblePosition())
@@ -311,7 +304,7 @@ public class ListAllActivity extends AppCompatActivity {
     }
 
     private void color() {
-        if (colors) {
+        if (options.colors) {
             for (int i = 0; i < aa.getCount(); i++) {
                 View v = lv.getChildAt(i);
                 if(v==null)
@@ -351,7 +344,7 @@ public class ListAllActivity extends AppCompatActivity {
             setFocus(focused, true);
     }
 
-    public void moveUp() {
+    private void moveUp() {
         if (focused > 0) {
             setFocus(focused, false);
             l.add(focused - 1, l.remove(focused));
@@ -368,7 +361,7 @@ public class ListAllActivity extends AppCompatActivity {
         moveUp();
     }
 
-    public void moveDown() {
+    private void moveDown() {
         if (focused != -1 && focused != l.size() - 1) {
             l.add(focused + 1, l.remove(focused));
             setFocus(focused, false);
@@ -385,7 +378,7 @@ public class ListAllActivity extends AppCompatActivity {
         moveDown();
     }
 
-    public void complete() {
+    private void complete() {
         if (focused != -1) {
             l.remove(focused);
             setFocus(focused, false);
@@ -399,7 +392,7 @@ public class ListAllActivity extends AppCompatActivity {
         complete();
     }
 
-    public void edit() {
+    private void edit() {
         if (focused != -1) {
             final Task tsk = l.get(focused);
             String desc;
@@ -514,19 +507,18 @@ public class ListAllActivity extends AppCompatActivity {
         edit();
     }
 
-    public void back() {
+    private void back() {
         t = new Tasks(l);
         Intent i = new Intent(ListAllActivity.this, MainActivity.class);
         i.putExtra("sender", "listAll");
-        i.putExtra("list", (Parcelable) t);
-        i.putExtra("colors", colors);
-        i.putExtra("notification", notification);
+        i.putExtra("list", t);
+        i.putExtra("options", options);
 
         ListAllActivity.this.startActivity(i);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    public void update() {
+    private void update() {
         aa.notifyDataSetChanged();
         color();
     }
@@ -536,7 +528,7 @@ public class ListAllActivity extends AppCompatActivity {
         back();
     }
 
-    public void tutorial() {
+    private void tutorial() {
         Util.message("Tutorial", this);
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
@@ -557,21 +549,22 @@ public class ListAllActivity extends AppCompatActivity {
         b.create().show();*/
     }
 
-    public void save() {
-        Util.saveTasks(t, this);
-        Util.saveOptions(colors, notification, this);
+    private void save() {
+        Util.saveTasks(t, options.list, this);
+        Util.saveOptions(options, this);
         Util.updateWidget(this);
     }
 
-    public void load() {
-        t = Util.loadTasks(this);
+    private void load() {
+        options = Util.loadOptions(this);
+        t = Util.loadTasks(options.list, this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         save();
-        if (notification && t.size() != 0)
+        if (options.notification && t.size() != 0)
             NotificationReciever.showNotification(t.getFirst().getName(), t.getFirst().getDescription(), t.getFirst().getColorId(), this);
     }
 

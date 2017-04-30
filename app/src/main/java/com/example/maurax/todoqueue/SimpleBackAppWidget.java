@@ -17,7 +17,7 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
     private Tasks t;
     private Context con;
 
-    void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+    private void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
 
         CharSequence widgetText = "";
         int col = R.color.transparent;
@@ -61,8 +61,9 @@ public class SimpleBackAppWidget extends AppWidgetProvider {
         // Enter relevant functionality for when the last widget is disabled
     }
 
-    public void load() {
-        t = Util.loadTasks(con);
+    private void load() {
+        Options op = Util.loadOptions(con);
+        t = Util.loadTasks(op.list, con);
     }
 
     @Override

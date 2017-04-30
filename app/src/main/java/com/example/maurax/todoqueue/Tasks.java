@@ -20,7 +20,7 @@ public class Tasks implements Parcelable {
             return new Tasks[size];
         }
     };
-    private LinkedList<Task> tasks;
+    private final LinkedList<Task> tasks;
 
     public Tasks() {
         tasks = new LinkedList<Task>();
