@@ -43,6 +43,10 @@ public class Tasks implements Parcelable {
         tasks.add(new Task(name, desc, prio));
     }
 
+    public void edit(Task t, int pos){
+        tasks.remove(pos);
+        tasks.add(pos, t);
+    }
     public void sort() {
         Collections.sort(tasks);
     }

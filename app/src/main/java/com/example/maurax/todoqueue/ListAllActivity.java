@@ -13,6 +13,7 @@ import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -286,20 +287,22 @@ public class ListAllActivity extends AppCompatActivity {
         //    lv.setSelection(pos);
         pos -= lv.getFirstVisiblePosition();
 
+        if(lv.getChildAt(pos)==null)
+            return;
         if (focus) {
             int col = ((ColorDrawable) lv.getChildAt(pos).getBackground()).getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(col, hsv);
             hsv[2] *= 0.8;
             lv.getChildAt(pos).setBackgroundColor(Color.HSVToColor(hsv));
-            lv.getChildAt(pos).setElevation(30);
+            //lv.getChildAt(pos).setElevation(30); //Causes weird bug when editing last task
         } else {
             int col = ((ColorDrawable) lv.getChildAt(pos).getBackground()).getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(col, hsv);
             hsv[2] *= 1.25;
             lv.getChildAt(pos).setBackgroundColor(Color.HSVToColor(hsv));
-            lv.getChildAt(pos).setElevation(0);
+            //lv.getChildAt(pos).setElevation(0);
         }
     }
 
@@ -339,9 +342,11 @@ public class ListAllActivity extends AppCompatActivity {
                 if(v!=null)
                     v.setBackgroundColor(ContextCompat.getColor(this, R.color.noPrio));
             }
-        }
+            }
+
         if (focused != -1)
             setFocus(focused, true);
+
     }
 
     private void moveUp() {
@@ -397,7 +402,7 @@ public class ListAllActivity extends AppCompatActivity {
             final Task tsk = l.get(focused);
             String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
-            b.setTitle(getResources().getString(R.string.add_new_lbl));
+            b.setTitle(getResources().getString(R.string.edit_lbl));
 
             LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(LinearLayout.VERTICAL);
