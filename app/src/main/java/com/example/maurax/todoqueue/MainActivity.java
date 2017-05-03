@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
     private PopupMenu popup;
     private Options options;
 
+    private final static boolean FRONT = true;
+    private final static boolean BACK = false;
+
     private float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
     @Override
@@ -77,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        update();
-        updateBack();
+        update(FRONT);
+        update(BACK);
 
         relLay = (RelativeLayout) findViewById(R.id.mainView);
 
@@ -353,48 +356,43 @@ public class MainActivity extends AppCompatActivity {
         postpone();
     }
 
-    private void updateBack() {
+
+    private void update(boolean card) {
         Task task = t.getFirst();
         if (task != null) {
-            updateBack(task.getName(), task.getDescription(), task.getPriority());
+            update(task.getName(), task.getDescription(), task.getPriority(), card);
         } else {
-            updateBack(getString(R.string.empty), getString(R.string.please_add), 0);
+            update(getString(R.string.empty), getString(R.string.please_add), 0, card);
         }
     }
 
-    private void updateBack(String name, String desc, int prio) {
-        TextView tvTask = (TextView) findViewById(R.id.TaskViewBack);
-        TextView tvDesc = (TextView) findViewById(R.id.DescViewBack);
-        TextView tvPrio = (TextView) findViewById(R.id.PrioTextBack);
+    private void update(String name, String desc, int prio, boolean card) {
+        TextView tvTask;
+        TextView tvDesc;
+        TextView tvPrio;
+        View back;
+        if(card==FRONT) {
+            tvTask = (TextView) findViewById(R.id.TaskView);
+            tvDesc = (TextView) findViewById(R.id.DescView);
+            tvPrio = (TextView) findViewById(R.id.PrioText);
+            back = findViewById(R.id.textGroup);
+        }else{
+            tvTask = (TextView) findViewById(R.id.TaskViewBack);
+            tvDesc = (TextView) findViewById(R.id.DescViewBack);
+            tvPrio = (TextView) findViewById(R.id.PrioTextBack);
+            back = findViewById(R.id.textGroupBack);
+        }
+
         assert tvTask != null;
         assert tvDesc != null;
         assert tvPrio != null;
         tvTask.setText(name);
         tvDesc.setText(desc);
-        tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
-        color(findViewById(R.id.textGroupBack), prio);
-    }
-
-    private void update() {
-        Task task = t.getFirst();
-        if (task != null) {
-            update(task.getName(), task.getDescription(), task.getPriority());
-        } else {
-            update(getString(R.string.empty), getString(R.string.please_add), 0);
-        }
-    }
-
-    private void update(String name, String desc, int prio) {
-        TextView tvTask = (TextView) findViewById(R.id.TaskView);
-        TextView tvDesc = (TextView) findViewById(R.id.DescView);
-        TextView tvPrio = (TextView) findViewById(R.id.PrioText);
-        assert tvTask != null;
-        assert tvDesc != null;
-        assert tvPrio != null;
-        tvTask.setText(name);
-        tvDesc.setText(desc);
-        tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
-        color(findViewById(R.id.textGroup), prio);
+        if(prio!=0)
+            tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
+        else
+            tvPrio.setText("");
+        color(back, prio);
     }
 
     private void color(View tg, int prio) {
@@ -464,14 +462,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                update();
+                update(FRONT);
                 tf.setElevation(0);
                 if (in != null) {
-                    updateBack(name, desc, prio);
+                    update(name, desc, prio, BACK);
                     tf.clearAnimation();
                     tfb.startAnimation(in);
                 } else {
-                    updateBack();
+                    update(BACK);
                 }
 
             }
@@ -491,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     tf.setElevation(0);
-                    updateBack();
+                    update(BACK);
                 }
 
                 @Override
@@ -501,18 +499,18 @@ public class MainActivity extends AppCompatActivity {
             });
         if (t.size() == 1)
             if (outDir.equals("complete")) {
-                updateBack();
+                update(BACK);
                 tf.startAnimation(out);
             } else if (outDir.equals("add")) {
-                update();
+                update(FRONT);
                 tf.startAnimation(out);
             } else
                 Util.message("Last item", this);
         else if (outDir.equals("add")) {
-            updateBack(name, desc, prio);
+            update(name, desc, prio, BACK);
             tfb.startAnimation(out);
         } else {
-            updateBack();
+            update(BACK);
             tf.startAnimation(out);
         }
 
@@ -525,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
         popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
         popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
 
-        update();
+        update(FRONT);
     }
 
     private void save() {
@@ -545,14 +543,14 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.sortOp:
                         t.sort();
-                        update();
-                        updateBack();
+                        update(FRONT);
+                        update(BACK);
                         return true;
                     case R.id.colorsOp:
                         item.setChecked(!item.isChecked());
                         options.colors = item.isChecked();
-                        update();
-                        updateBack();
+                        update(FRONT);
+                        update(BACK);
                         popup.show();
                         return true;
                     case R.id.notifyOp:
@@ -616,7 +614,7 @@ public class MainActivity extends AppCompatActivity {
                                 load();
                                 arrayAdapter.insert(name, arrayAdapter.getCount()-1);
                                 arrayAdapter.notifyDataSetChanged();
-                                updateBack();
+                                update(BACK);
                             }
                         }
                     });
