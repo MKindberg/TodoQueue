@@ -11,7 +11,7 @@ import android.os.Parcelable;
 public class Options implements Parcelable {
     public boolean colors = false;
     public boolean notification = false;
-    public String list = "Default";
+    public String list = TaskDB.DEFALT_TABLE_NAME;
 
     @Override
     public int describeContents() {

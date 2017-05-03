@@ -2,6 +2,7 @@ package com.example.maurax.todoqueue;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -21,6 +22,8 @@ import java.util.LinkedList;
 
 class Util {
 
+    private static TaskDB mHelper;
+
     public static final String ACTION_UPDATE = "UPDATE";
 
     public static void updateNotification(Context con){
@@ -35,8 +38,14 @@ class Util {
         con.sendBroadcast(i);
     }
 
-    public static void saveTasks(Tasks t, String name, Context con) {
-        String filePath = con.getFilesDir().toString()+"lists"+File.pathSeparator;
+    public static void saveTasks(Tasks t, String name, Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.fillTable(db, name, t);
+        db.close();
+    }
+        /*String filePath = con.getFilesDir().toString();
 
         LinkedList<Task> tsks = t.getAll();
         try {
@@ -61,7 +70,7 @@ class Util {
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     /**
      * Loads selected list from file
@@ -70,7 +79,12 @@ class Util {
      * @return List as Tasks object, new Tasks object if non existing
      */
     public static Tasks loadTasks(String name, Context con) {
-        if (!new File(con.getFilesDir().toString() + "lists"+File.pathSeparator+name).exists()) {
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        Tasks t = mHelper.getTasks(db, name);
+        db.close();return t;
+        /*if (!new File(con.getFilesDir().toString() + "lists"+File.pathSeparator+name).exists()) {
             return new Tasks();
         }
 
@@ -93,11 +107,16 @@ class Util {
         LinkedList<Task> ll = new LinkedList<>();
         for (int i = 0; i < data.length - 2; i += 3)
             ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
-        return new Tasks(ll);
+        return new Tasks(ll);*/
     }
 
     public static void saveOptions(Options options, Context con) {
-        String filePath = con.getFilesDir().toString();
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.saveOptions(db, options);
+        db.close();
+        /*String filePath = con.getFilesDir().toString();
 
         try {
             StringBuilder sb = new StringBuilder();
@@ -113,11 +132,18 @@ class Util {
             os.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public static Options loadOptions(Context con) {
-        Options res = new Options();
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        Options options = mHelper.getOptions(db);
+        db.close();
+
+        return options;
+        /*Options res = new Options();
         try {
             InputStream is = con.openFileInput("settings");
             InputStreamReader isr = new InputStreamReader(is);
@@ -143,14 +169,37 @@ class Util {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return res;
+        return res;*/
     }
 
     public static String[] loadLists(Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        String[] l = mHelper.getAllLists(db);
+        db.close();
+        return l;
+        /*
         File f = new File(con.getFilesDir()+"lists/");
         if (!f.exists())
             f.mkdir();
-        return f.list();
+        message(Integer.toString(f.list().length), con);
+        return f.list();*/
+    }
+
+    public static void addTable(String name, Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.addTable(db, name);
+        db.close();
+    }
+    public static void removeTable(String name, Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.deleteTable(db, name);
+        db.close();
     }
 
 
@@ -170,5 +219,12 @@ class Util {
         });
         b.setCancelable(true);
         b.create().show();*/
+    }
+
+    public static boolean contains(String[] list, String item){
+        for(String i:list)
+            if(i.equals(item))
+                return true;
+            return false;
     }
 }

@@ -1,20 +1,23 @@
 package com.example.maurax.todoqueue;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Path;
+import android.graphics.Matrix;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.PopupMenu;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -36,6 +40,7 @@ import java.io.IOException;
 import static com.example.maurax.todoqueue.Util.loadOptions;
 import static com.example.maurax.todoqueue.Util.loadTasks;
 import static com.example.maurax.todoqueue.Util.message;
+import static com.example.maurax.todoqueue.Util.saveOptions;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -531,7 +536,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void menu(View v) {
         popup.show();
-
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -574,17 +578,11 @@ public class MainActivity extends AppCompatActivity {
         builderSingle.setTitle("Select a list:");
 
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
-        arrayAdapter.addAll(Util.loadLists(this));
+        final String[] lists = Util.loadLists(this);
+        arrayAdapter.addAll(lists);
         arrayAdapter.add("Add new");
 
-        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+        builderSingle.setSingleChoiceItems(arrayAdapter, arrayAdapter.getPosition(options.list), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final String strName = arrayAdapter.getItem(which);
@@ -608,21 +606,74 @@ public class MainActivity extends AppCompatActivity {
                             String name = String.valueOf(ETname.getText());
                             if(name.equals(""))
                                 Util.message("List must have a name", MainActivity.this);
+                            else if(Util.contains(lists, name))
+                                Util.message("List name must be unique", MainActivity.this);
                             else{
-                                options.list = name;
                                 save();
+                                options.list = name;
+                                Util.addTable(name, MainActivity.this);
+                                Util.saveOptions(options, MainActivity.this);
                                 load();
+                                arrayAdapter.insert(name, arrayAdapter.getCount()-1);
+                                arrayAdapter.notifyDataSetChanged();
+                                updateBack();
                             }
                         }
                     });
                     builderInner.show();
-                }else
+                }else{
+                    save();
                     options.list = strName;
-                save();
-                load();
+                    saveOptions(options, MainActivity.this);
+                    load();
+                }
             }
         });
-        builderSingle.show();
+
+        builderSingle.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setNeutralButton("Delete", null);
+
+        final AlertDialog dialog = builderSingle.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (arrayAdapter.getCount() == 2) {
+                    Util.message("You can't delete the last list", MainActivity.this);
+                    return;
+                }
+                dialog.dismiss();
+                final AlertDialog.Builder builderDelete = new AlertDialog.Builder(MainActivity.this);
+                builderDelete.setTitle("Are you sure you want to delete the list " + options.list + "?");
+                builderDelete.setNegativeButton("Calcel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builderDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        Util.removeTable(options.list, MainActivity.this);
+                        arrayAdapter.remove(options.list);
+                        options.list = arrayAdapter.getItem(0);
+                        arrayAdapter.notifyDataSetChanged();
+                        saveOptions(options, MainActivity.this);
+                        load();
+                    }
+                });
+                builderDelete.show();
+            }
+        });
+
+        //builderSingle.show();
 
     }
 
