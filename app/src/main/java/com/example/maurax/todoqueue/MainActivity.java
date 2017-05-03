@@ -370,28 +370,33 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTask;
         TextView tvDesc;
         TextView tvPrio;
+        TextView tvList;
         View back;
         if(card==FRONT) {
             tvTask = (TextView) findViewById(R.id.TaskView);
             tvDesc = (TextView) findViewById(R.id.DescView);
             tvPrio = (TextView) findViewById(R.id.PrioText);
+            tvList = (TextView) findViewById(R.id.ListText);
             back = findViewById(R.id.textGroup);
         }else{
             tvTask = (TextView) findViewById(R.id.TaskViewBack);
             tvDesc = (TextView) findViewById(R.id.DescViewBack);
             tvPrio = (TextView) findViewById(R.id.PrioTextBack);
+            tvList = (TextView) findViewById(R.id.ListTextBack);
             back = findViewById(R.id.textGroupBack);
         }
 
         assert tvTask != null;
         assert tvDesc != null;
         assert tvPrio != null;
+        assert tvList != null;
         tvTask.setText(name);
         tvDesc.setText(desc);
         if(prio!=0)
             tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
         else
             tvPrio.setText("");
+        tvList.setText(options.list);
         color(back, prio);
     }
 
