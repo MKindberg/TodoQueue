@@ -3,6 +3,8 @@ package com.example.maurax.todoqueue;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,29 +48,31 @@ class ListAllAdapter extends ArrayAdapter<Task> {
             viewHolder.desc = tDesc;
             viewHolder.line = tLine;
 
+            viewHolder.desc.setEllipsize(TextUtils.TruncateAt.END);
+
+
             convertView.setTag(viewHolder);
 
         }else
             viewHolder = (ViewHolderItem) convertView.getTag();
         //int w = convertView.getWidth();
         //viewHolder.desc.setWidth(w/2);
-
         if(!t.getName().equals("")) {
             viewHolder.title.setVisibility(View.VISIBLE);
-            viewHolder.line.setVisibility(View.VISIBLE);
             viewHolder.title.setText(t.getName());
         }else{
-            viewHolder.title.setVisibility(View.GONE);
-            viewHolder.line.setVisibility(View.GONE);
-        }
+            viewHolder.title.setVisibility(View.GONE);}
         if(!t.getDescription().equals("")) {
             viewHolder.desc.setVisibility(View.VISIBLE);
-            viewHolder.line.setVisibility(View.VISIBLE);
             viewHolder.desc.setText(t.getDescription().replace("\n", "  //  "));
-        }else{
+        }else
             viewHolder.desc.setVisibility(View.GONE);
+
+        if(t.getDescription().equals("") || t.getName().equals(""))
             viewHolder.line.setVisibility(View.GONE);
-        }
+        else
+            viewHolder.line.setVisibility(View.VISIBLE);
+
         return convertView;
     }
     private static class ViewHolderItem {
