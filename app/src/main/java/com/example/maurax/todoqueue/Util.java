@@ -2,11 +2,15 @@ package com.example.maurax.todoqueue;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,9 +21,11 @@ import java.util.LinkedList;
  * Created by marcus on 2017-04-01.
  */
 
-public class Util {
+class Util {
 
-    public static String ACTION_UPDATE = "UPDATE";
+    private static TaskDB mHelper;
+
+    public static final String ACTION_UPDATE = "UPDATE";
 
     public static void updateNotification(Context con){
         Intent i = new Intent(con, NotificationReciever.class);
@@ -33,13 +39,23 @@ public class Util {
         con.sendBroadcast(i);
     }
 
-    public static void saveTasks(Tasks t, Context con) {
-        String filePath = con.getFilesDir().toString();
+    public static void saveTasks(Tasks t, String name, Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.fillTable(db, name, t);
+        db.close();
+    }
+        /*String filePath = con.getFilesDir().toString();
 
         LinkedList<Task> tsks = t.getAll();
         try {
-            new File(filePath + "data").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(con.openFileOutput("data", Context.MODE_PRIVATE));
+            if(!new File(filePath).exists())
+                new File(filePath).mkdir();
+            File f = new File(filePath + name);
+            f.createNewFile();
+            FileOutputStream fos = new FileOutputStream(f);
+            OutputStreamWriter os = new OutputStreamWriter(fos);
             StringBuilder sb = new StringBuilder();
             for (Task tsk : tsks) {
                 sb.append("T").append(tsk.getName());
@@ -51,47 +67,39 @@ public class Util {
             }
             os.write(sb.toString());
             os.close();
+            fos.close();
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    public static void saveOptions(boolean colors, boolean notification, Context con) {
-        String filePath = con.getFilesDir().toString();
-
-        try {
-            StringBuilder sb = new StringBuilder();
-            sb.append("colors ").append(Boolean.toString(colors));
-            sb.append("\n");
-            sb.append("notification ").append(Boolean.toString(notification));
-
-            new File(filePath + "settings").createNewFile();
-            OutputStreamWriter os = new OutputStreamWriter(con.openFileOutput("settings", Context.MODE_PRIVATE));
-            os.write(sb.toString());
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static Tasks loadTasks(Context con) {
-        if (!new File(con.getFilesDir().toString() + "data").exists()) {
+    /**
+     * Loads selected list from file
+     * @param name Name of list
+     * @param con
+     * @return List as Tasks object, new Tasks object if non existing
+     */
+    public static Tasks loadTasks(String name, Context con) {
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        Tasks t = mHelper.getTasks(db, name);
+        db.close();return t;
+        /*if (!new File(con.getFilesDir().toString() + "lists"+File.pathSeparator+name).exists()) {
             return new Tasks();
         }
 
         StringBuilder temp = new StringBuilder();
         try {
-            InputStream is = con.openFileInput("data");
-            if (is != null) {
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(isr);
-                String rec;
+            FileInputStream fis = new FileInputStream(con.getFilesDir().toString()+"lists"+File.pathSeparator+name);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String rec;
 
-                while ((rec = br.readLine()) != null) {
-                    temp.append(rec + "\n");
-                }
-                is.close();
+            while ((rec = br.readLine()) != null) {
+                temp.append(rec + "\n");
             }
+            fis.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,17 +108,43 @@ public class Util {
         LinkedList<Task> ll = new LinkedList<>();
         for (int i = 0; i < data.length - 2; i += 3)
             ll.add(new Task(data[i].trim().substring(1), data[i + 1].trim().substring(1), Integer.parseInt(data[i + 2].trim())));
-        return new Tasks(ll);
+        return new Tasks(ll);*/
     }
 
-    /**
-     * Loads the options from file
-     * @param con
-     * @return The options as an array [colors, notification]
-     */
-    public static boolean[] loadOptions(Context con) {
-        boolean colors = false;
-        boolean notification = false;
+    public static void saveOptions(Options options, Context con) {
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.saveOptions(db, options);
+        db.close();
+        /*String filePath = con.getFilesDir().toString();
+
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("colors ").append(Boolean.toString(options.colors));
+            sb.append("\n");
+            sb.append("notification ").append(Boolean.toString(options.notification));
+            sb.append("\n");
+            sb.append("list ").append(options.list);
+
+            new File(filePath + "settings").createNewFile();
+            OutputStreamWriter os = new OutputStreamWriter(con.openFileOutput("settings", Context.MODE_PRIVATE));
+            os.write(sb.toString());
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    public static Options loadOptions(Context con) {
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        Options options = mHelper.getOptions(db);
+        db.close();
+
+        return options;
+        /*Options res = new Options();
         try {
             InputStream is = con.openFileInput("settings");
             InputStreamReader isr = new InputStreamReader(is);
@@ -121,10 +155,13 @@ public class Util {
                 set = rec.split(" ");
                 switch (set[0]) {
                     case "colors":
-                        colors = Boolean.parseBoolean(set[1]);
+                        res.colors = Boolean.parseBoolean(set[1]);
                         break;
                     case "notification":
-                        notification = Boolean.parseBoolean(set[1]);
+                        res.notification = Boolean.parseBoolean(set[1]);
+                        break;
+                    case "list":
+                        res.list = set[1];
                         break;
                 }
             }
@@ -133,8 +170,39 @@ public class Util {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new boolean[]{colors, notification};
+        return res;*/
     }
+
+    public static String[] loadLists(Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getReadableDatabase();
+        String[] l = mHelper.getAllLists(db);
+        db.close();
+        return l;
+        /*
+        File f = new File(con.getFilesDir()+"lists/");
+        if (!f.exists())
+            f.mkdir();
+        message(Integer.toString(f.list().length), con);
+        return f.list();*/
+    }
+
+    public static void addTable(String name, Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.addTable(db, name);
+        db.close();
+    }
+    public static void removeTable(String name, Context con){
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.deleteTable(db, name);
+        db.close();
+    }
+
 
     public static void message(String message, Context con) {
 
@@ -152,5 +220,12 @@ public class Util {
         });
         b.setCancelable(true);
         b.create().show();*/
+    }
+
+    public static boolean contains(String[] list, String item){
+        for(String i:list)
+            if (i.equals(item))
+                return true;
+            return false;
     }
 }

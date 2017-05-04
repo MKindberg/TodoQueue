@@ -16,6 +16,7 @@ public class NotificationReciever extends BroadcastReceiver {
 
     private Tasks t;
     private Context con;
+    private Options options;
 
     public static void showNotification(String name, String desc, int colorId, Context con) {
         NotificationCompat.Builder nBuild = new NotificationCompat.Builder(con);
@@ -82,11 +83,12 @@ public class NotificationReciever extends BroadcastReceiver {
     }
 
     private void load() {
-        t = Util.loadTasks(con);
+        options = Util.loadOptions(con);
+        t = Util.loadTasks(options.list, con);
     }
 
     private void save() {
-        Util.saveTasks(t, con);
+        Util.saveTasks(t, options.list, con);
         Util.updateWidget(con);
     }
 }

@@ -20,7 +20,7 @@ public class Tasks implements Parcelable {
             return new Tasks[size];
         }
     };
-    private LinkedList<Task> tasks;
+    private final LinkedList<Task> tasks;
 
     public Tasks() {
         tasks = new LinkedList<Task>();
@@ -43,6 +43,10 @@ public class Tasks implements Parcelable {
         tasks.add(new Task(name, desc, prio));
     }
 
+    public void edit(Task t, int pos){
+        tasks.remove(pos);
+        tasks.add(pos, t);
+    }
     public void sort() {
         Collections.sort(tasks);
     }

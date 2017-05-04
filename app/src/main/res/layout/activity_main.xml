@@ -87,7 +87,6 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-
             <TextView
                 android:id="@+id/TaskViewBack"
                 android:layout_width="fill_parent"
@@ -131,8 +130,6 @@
             android:clipToPadding="false"
             >
 
-
-
             <TextView
                 android:id="@+id/TaskView"
                 android:layout_width="fill_parent"
@@ -165,4 +162,13 @@
                 />
         </LinearLayout>
     </FrameLayout>
+    <TextView
+        android:id="@+id/ListText"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:textAlignment="viewStart"
+        android:text="List"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        />
 </RelativeLayout>

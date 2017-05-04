@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import static com.example.maurax.todoqueue.Util.saveOptions;
+
 public class ListAllActivity extends AppCompatActivity {
     private LinkedList<Task> l;
     private Tasks t;
@@ -43,28 +44,26 @@ public class ListAllActivity extends AppCompatActivity {
     private int focused = -1;
 
     private PopupMenu popup;
-    private boolean colors;
-    private boolean notification;
+    private Options options;
 
     private String filePath;
 
-    private float x1, x2, y1, y2;
+    private float x1;
+    private float y1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
-        Log.i("Test", "1");
 
+        options = new Options();
         readIntent();
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
 
         aa = new ListAllAdapter(this, R.layout.listitem, l);
-        Log.i("AA", aa.toString());
         lv.setAdapter(aa);
-        Log.i("Test", "3");
         filePath = getFilesDir().toString();
 
 
@@ -72,31 +71,28 @@ public class ListAllActivity extends AppCompatActivity {
         createMenu();
 
         setListeners();
-        Log.i("Test", "4");
         checkTutorial();
-//        update();
+        update();
         lv.post(new Runnable() {
             @Override
             public void run() {
                 color();
             }
         });
-        Log.i("Test", "5");
     }
 
     private void createMenu() {
         popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
         popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
     }
 
     private void readIntent() {
         Intent i = getIntent();
         t = i.getParcelableExtra("list");
         l = t.getAll();
-        colors = i.getBooleanExtra("colors", false);
-        notification = i.getBooleanExtra("notification", false);
+        options = i.getParcelableExtra("options");
     }
 
     private void setListeners() {
@@ -125,7 +121,7 @@ public class ListAllActivity extends AppCompatActivity {
 
         assert relLay != null;
         lv.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -157,7 +153,7 @@ public class ListAllActivity extends AppCompatActivity {
         });
 
         filler.setOnTouchListener(new View.OnTouchListener() {
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
@@ -226,14 +222,17 @@ public class ListAllActivity extends AppCompatActivity {
                         return true;
                     case R.id.colorsOp:
                         item.setChecked(!item.isChecked());
-                        colors = item.isChecked();
+                        options.colors = item.isChecked();
                         color();
                         popup.show();
                         return true;
                     case R.id.notifyOp:
                         item.setChecked(!item.isChecked());
-                        notification = item.isChecked();
+                        options.notification = item.isChecked();
                         popup.show();
+                        return true;
+                    case R.id.listOp:
+                        listDialog();
                         return true;
                     default:
                         return false;
@@ -252,8 +251,8 @@ public class ListAllActivity extends AppCompatActivity {
                 y1 = event.getY();
                 return super.dispatchTouchEvent(event);
             case MotionEvent.ACTION_UP:
-                x2 = event.getX();
-                y2 = event.getY();
+                float x2 = event.getX();
+                float y2 = event.getY();
 
                 float diffX = x2 - x1;
                 float diffY = y2 - y1;
@@ -278,7 +277,7 @@ public class ListAllActivity extends AppCompatActivity {
         return super.dispatchTouchEvent(event);
     }
 
-    public void setFocus(int pos, boolean focus) {
+    private void setFocus(int pos, boolean focus) {
         if(pos == 0)
             lv.setSelectionAfterHeaderView();
         else if(pos<=lv.getFirstVisiblePosition())
@@ -293,25 +292,27 @@ public class ListAllActivity extends AppCompatActivity {
         //    lv.setSelection(pos);
         pos -= lv.getFirstVisiblePosition();
 
+        if(lv.getChildAt(pos)==null)
+            return;
         if (focus) {
             int col = ((ColorDrawable) lv.getChildAt(pos).getBackground()).getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(col, hsv);
             hsv[2] *= 0.8;
             lv.getChildAt(pos).setBackgroundColor(Color.HSVToColor(hsv));
-            lv.getChildAt(pos).setElevation(30);
+            //lv.getChildAt(pos).setElevation(30); //Causes weird bug when editing last task
         } else {
             int col = ((ColorDrawable) lv.getChildAt(pos).getBackground()).getColor();
             float[] hsv = new float[3];
             Color.colorToHSV(col, hsv);
             hsv[2] *= 1.25;
             lv.getChildAt(pos).setBackgroundColor(Color.HSVToColor(hsv));
-            lv.getChildAt(pos).setElevation(0);
+            //lv.getChildAt(pos).setElevation(0);
         }
     }
 
     private void color() {
-        if (colors) {
+        if (options.colors) {
             for (int i = 0; i < aa.getCount(); i++) {
                 View v = lv.getChildAt(i);
                 if(v==null)
@@ -346,12 +347,14 @@ public class ListAllActivity extends AppCompatActivity {
                 if(v!=null)
                     v.setBackgroundColor(ContextCompat.getColor(this, R.color.noPrio));
             }
-        }
+            }
+
         if (focused != -1)
             setFocus(focused, true);
+
     }
 
-    public void moveUp() {
+    private void moveUp() {
         if (focused > 0) {
             setFocus(focused, false);
             l.add(focused - 1, l.remove(focused));
@@ -368,7 +371,7 @@ public class ListAllActivity extends AppCompatActivity {
         moveUp();
     }
 
-    public void moveDown() {
+    private void moveDown() {
         if (focused != -1 && focused != l.size() - 1) {
             l.add(focused + 1, l.remove(focused));
             setFocus(focused, false);
@@ -385,7 +388,7 @@ public class ListAllActivity extends AppCompatActivity {
         moveDown();
     }
 
-    public void complete() {
+    private void complete() {
         if (focused != -1) {
             l.remove(focused);
             setFocus(focused, false);
@@ -399,12 +402,12 @@ public class ListAllActivity extends AppCompatActivity {
         complete();
     }
 
-    public void edit() {
+    private void edit() {
         if (focused != -1) {
             final Task tsk = l.get(focused);
             String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
-            b.setTitle(getResources().getString(R.string.add_new_lbl));
+            b.setTitle(getResources().getString(R.string.edit_lbl));
 
             LinearLayout layout = new LinearLayout(this);
             layout.setOrientation(LinearLayout.VERTICAL);
@@ -510,25 +513,134 @@ public class ListAllActivity extends AppCompatActivity {
             Util.message(getResources().getString(R.string.lv_please_select), this);
     }
 
+    private void listDialog(){
+        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        builderSingle.setTitle("Select a list:");
+
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+        final String[] lists = Util.loadLists(this);
+        arrayAdapter.addAll(lists);
+        arrayAdapter.add("Add new");
+
+        builderSingle.setSingleChoiceItems(arrayAdapter, arrayAdapter.getPosition(options.list), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String strName = arrayAdapter.getItem(which);
+                if(strName.equals("Add new")){
+                    AlertDialog.Builder builderInner = new AlertDialog.Builder(ListAllActivity.this);
+                    builderInner.setTitle("New list name:");
+
+                    final EditText ETname = new EditText(ListAllActivity.this);
+                    builderInner.setView(ETname);
+
+                    builderInner.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builderInner.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String name = String.valueOf(ETname.getText());
+                            if(name.equals(""))
+                                Util.message("List must have a name", ListAllActivity.this);
+                            else if(Util.contains(lists, name)) {
+                                Util.message("List name must be unique", ListAllActivity.this);
+                                Log.i("Contains", "True");
+                            }
+                            else{
+                                Log.i("Contains", "False");
+                                save();
+                                options.list = name;
+                                Util.addTable(name, ListAllActivity.this);
+                                saveOptions(options, ListAllActivity.this);
+                                load();
+                                arrayAdapter.insert(name, arrayAdapter.getCount()-1);
+                                arrayAdapter.notifyDataSetChanged();
+                                update();
+                            }
+                        }
+                    });
+                    builderInner.show();
+                }else{
+                    save();
+                    options.list = strName;
+                    saveOptions(options, ListAllActivity.this);
+                    load();
+                }
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setNeutralButton("Delete", null);
+
+        final AlertDialog dialog = builderSingle.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (arrayAdapter.getCount() == 2) {
+                    Util.message("You can't delete the last list", ListAllActivity.this);
+                    return;
+                }
+                dialog.dismiss();
+                final AlertDialog.Builder builderDelete = new AlertDialog.Builder(ListAllActivity.this);
+                builderDelete.setTitle("Are you sure you want to delete the list " + options.list + "?");
+                builderDelete.setNegativeButton("Calcel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builderDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        Util.removeTable(options.list, ListAllActivity.this);
+                        arrayAdapter.remove(options.list);
+                        options.list = arrayAdapter.getItem(0);
+                        arrayAdapter.notifyDataSetChanged();
+                        saveOptions(options, ListAllActivity.this);
+                        load();
+                    }
+                });
+                builderDelete.show();
+            }
+        });
+
+        //builderSingle.show();
+
+    }
+
     public void edit(View v) {
         edit();
     }
 
-    public void back() {
+    private void back() {
         t = new Tasks(l);
         Intent i = new Intent(ListAllActivity.this, MainActivity.class);
         i.putExtra("sender", "listAll");
-        i.putExtra("list", (Parcelable) t);
-        i.putExtra("colors", colors);
-        i.putExtra("notification", notification);
+        i.putExtra("list", t);
+        i.putExtra("options", options);
 
         ListAllActivity.this.startActivity(i);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    public void update() {
+    private void update() {
         aa.notifyDataSetChanged();
         color();
+        TextView tvList = (TextView) findViewById(R.id.ListText);
+        tvList.setText(options.list);
     }
 
     @Override
@@ -536,7 +648,7 @@ public class ListAllActivity extends AppCompatActivity {
         back();
     }
 
-    public void tutorial() {
+    private void tutorial() {
         Util.message("Tutorial", this);
         /*final File f = new File(filePath + "tutorial2");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
@@ -557,21 +669,22 @@ public class ListAllActivity extends AppCompatActivity {
         b.create().show();*/
     }
 
-    public void save() {
-        Util.saveTasks(t, this);
-        Util.saveOptions(colors, notification, this);
+    private void save() {
+        Util.saveTasks(t, options.list, this);
+        saveOptions(options, this);
         Util.updateWidget(this);
     }
 
-    public void load() {
-        t = Util.loadTasks(this);
+    private void load() {
+        options = Util.loadOptions(this);
+        t = Util.loadTasks(options.list, this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         save();
-        if (notification && t.size() != 0)
+        if (options.notification && t.size() != 0)
             NotificationReciever.showNotification(t.getFirst().getName(), t.getFirst().getDescription(), t.getFirst().getColorId(), this);
     }
 

@@ -1,20 +1,23 @@
 package com.example.maurax.todoqueue;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.PopupMenu;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -34,6 +39,8 @@ import java.io.IOException;
 
 import static com.example.maurax.todoqueue.Util.loadOptions;
 import static com.example.maurax.todoqueue.Util.loadTasks;
+import static com.example.maurax.todoqueue.Util.message;
+import static com.example.maurax.todoqueue.Util.saveOptions;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,8 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private String filePath;
 
     private PopupMenu popup;
-    private boolean colors = false;
-    private boolean notification = false;
+    private Options options;
+
+    private final static boolean FRONT = true;
+    private final static boolean BACK = false;
 
     private float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
@@ -61,26 +70,29 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         t = new Tasks();
 
-        createMenu();
-
         filePath = this.getFilesDir().getPath();
+
+        options = new Options();
+
+        createMenu();
 
         readIntent();
 
-        update();
-        updateBack();
+
+
+        update(FRONT);
+        update(BACK);
 
         relLay = (RelativeLayout) findViewById(R.id.mainView);
 
         relLay.setOnTouchListener(new View.OnTouchListener() {
 
-            private GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     Intent i = new Intent(MainActivity.this, ListAllActivity.class);
-                    i.putExtra("list", (Parcelable) t);
-                    i.putExtra("colors", colors);
-                    i.putExtra("notification", notification);
+                    i.putExtra("list", t);
+                    i.putExtra("options", options);
                     MainActivity.this.startActivity(i);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     return super.onDoubleTap(e);
@@ -134,7 +146,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void createMenu() {
         popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
-        getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
     }
 
     private void readIntent() {
@@ -146,10 +160,9 @@ public class MainActivity extends AppCompatActivity {
         }
     else {
             t = in.getParcelableExtra("list");
-            colors = in.getBooleanExtra("colors", false);
-            notification = in.getBooleanExtra("notification", false);
-            popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-            popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
+            options = in.getParcelableExtra("options");
+            popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+            popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
         }
     }
     private void checkTutorial() {
@@ -164,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void tutorial() {
+    private void tutorial() {
         final File f = new File(filePath + "tutorial");
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setMessage("Swipe towards the edges or press them to handle the list of tasks.\n" +
@@ -188,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         b.create().show();
     }
 
-    public void add() {
+    private void add() {
         AlertDialog.Builder b = new AlertDialog.Builder(this);
         b.setTitle(getResources().getString(R.string.add_new_lbl));
 
@@ -302,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         add();
     }
 
-    public void complete() {
+    private void complete() {
         if (t.complete())
             animate("complete");
         else
@@ -313,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
         complete();
     }
 
-    public void putLast() {
+    private void putLast() {
         Task tsk = t.getFirst();
         if (t.toLast()) {
             name = tsk.getName();
@@ -328,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
         putLast();
     }
 
-    public void postpone() {
+    private void postpone() {
         Task tsk = t.getFirst();
         if (t.postpone()) {
             name = tsk.getName();
@@ -343,56 +356,54 @@ public class MainActivity extends AppCompatActivity {
         postpone();
     }
 
-    public void updateBack() {
+
+    private void update(boolean card) {
         Task task = t.getFirst();
         if (task != null) {
-            updateBack(task.getName(), task.getDescription(), task.getPriority());
+            update(task.getName(), task.getDescription(), task.getPriority(), card);
         } else {
-            updateBack(getString(R.string.empty), getString(R.string.please_add), 0);
+            update(getString(R.string.empty), getString(R.string.please_add), 0, card);
         }
     }
 
-    public void updateBack(String name, String desc, int prio) {
-        TextView tvTask = (TextView) findViewById(R.id.TaskViewBack);
-        TextView tvDesc = (TextView) findViewById(R.id.DescViewBack);
-        TextView tvPrio = (TextView) findViewById(R.id.PrioTextBack);
-        assert tvTask != null;
-        assert tvDesc != null;
-        assert tvPrio != null;
-        tvTask.setText(name);
-        tvDesc.setText(desc);
-        tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
-        color(findViewById(R.id.textGroupBack), prio);
-    }
-
-    public void update() {
-        Task task = t.getFirst();
-        if (task != null) {
-            update(task.getName(), task.getDescription(), task.getPriority());
-        } else {
-            update(getString(R.string.empty), getString(R.string.please_add), 0);
+    private void update(String name, String desc, int prio, boolean card) {
+        TextView tvTask;
+        TextView tvDesc;
+        TextView tvPrio;
+        TextView tvList = (TextView) findViewById(R.id.ListText);
+        View back;
+        if(card==FRONT) {
+            tvTask = (TextView) findViewById(R.id.TaskView);
+            tvDesc = (TextView) findViewById(R.id.DescView);
+            tvPrio = (TextView) findViewById(R.id.PrioText);
+            back = findViewById(R.id.textGroup);
+        }else{
+            tvTask = (TextView) findViewById(R.id.TaskViewBack);
+            tvDesc = (TextView) findViewById(R.id.DescViewBack);
+            tvPrio = (TextView) findViewById(R.id.PrioTextBack);
+            back = findViewById(R.id.textGroupBack);
         }
-    }
 
-    public void update(String name, String desc, int prio) {
-        TextView tvTask = (TextView) findViewById(R.id.TaskView);
-        TextView tvDesc = (TextView) findViewById(R.id.DescView);
-        TextView tvPrio = (TextView) findViewById(R.id.PrioText);
         assert tvTask != null;
         assert tvDesc != null;
         assert tvPrio != null;
+        assert tvList != null;
         tvTask.setText(name);
         tvDesc.setText(desc);
-        tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
-        color(findViewById(R.id.textGroup), prio);
+        if(prio!=0)
+            tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
+        else
+            tvPrio.setText("");
+        tvList.setText(options.list);
+        color(back, prio);
     }
 
-    public void color(View tg, int prio) {
+    private void color(View tg, int prio) {
         GradientDrawable gd = new GradientDrawable();
         gd.setStroke(3, Color.BLACK);
         gd.setCornerRadius(5);
         int colId;
-        if (colors) {
+        if (options.colors) {
             switch (prio) {
                 case 1:
                     colId = R.color.prio1;
@@ -454,14 +465,14 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                update();
+                update(FRONT);
                 tf.setElevation(0);
                 if (in != null) {
-                    updateBack(name, desc, prio);
+                    update(name, desc, prio, BACK);
                     tf.clearAnimation();
                     tfb.startAnimation(in);
                 } else {
-                    updateBack();
+                    update(BACK);
                 }
 
             }
@@ -481,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     tf.setElevation(0);
-                    updateBack();
+                    update(BACK);
                 }
 
                 @Override
@@ -491,45 +502,41 @@ public class MainActivity extends AppCompatActivity {
             });
         if (t.size() == 1)
             if (outDir.equals("complete")) {
-                updateBack();
+                update(BACK);
                 tf.startAnimation(out);
             } else if (outDir.equals("add")) {
-                update();
+                update(FRONT);
                 tf.startAnimation(out);
             } else
                 Util.message("Last item", this);
         else if (outDir.equals("add")) {
-            updateBack(name, desc, prio);
+            update(name, desc, prio, BACK);
             tfb.startAnimation(out);
         } else {
-            updateBack();
+            update(BACK);
             tf.startAnimation(out);
         }
 
     }
 
-    public void load() {
-        t = loadTasks(this);
-        boolean[] options = loadOptions(this);
+    private void load() {
+        options = loadOptions(this);
+        t = loadTasks(options.list, this);
 
-        colors = options[0];
-        notification = options[1];
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
 
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(notification);
-
-        update();
+        update(FRONT);
     }
 
-    public void save() {
-        Util.saveTasks(t, this);
-        Util.saveOptions(colors, notification, this);
+    private void save() {
+        Util.saveTasks(t, options.list, this);
+        Util.saveOptions(options, this);
         Util.updateWidget(this);
     }
 
     public void menu(View v) {
         popup.show();
-
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -539,26 +546,136 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.sortOp:
                         t.sort();
-                        update();
-                        updateBack();
+                        update(FRONT);
+                        update(BACK);
                         return true;
                     case R.id.colorsOp:
                         item.setChecked(!item.isChecked());
-                        colors = item.isChecked();
-                        update();
-                        updateBack();
+                        options.colors = item.isChecked();
+                        update(FRONT);
+                        update(BACK);
                         popup.show();
                         return true;
                     case R.id.notifyOp:
                         item.setChecked(!item.isChecked());
-                        notification = item.isChecked();
+                        options.notification = item.isChecked();
                         popup.show();
                         return true;
+                    case R.id.listOp:
+                        listDialog();
+                        return true;
+
                     default:
                         return false;
                 }
             }
         });
+
+    }
+
+    private void listDialog(){
+        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        builderSingle.setTitle("Select a list:");
+
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+        final String[] lists = Util.loadLists(this);
+        arrayAdapter.addAll(lists);
+        arrayAdapter.add("Add new");
+
+        builderSingle.setSingleChoiceItems(arrayAdapter, arrayAdapter.getPosition(options.list), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String strName = arrayAdapter.getItem(which);
+                if(strName.equals("Add new")){
+                    AlertDialog.Builder builderInner = new AlertDialog.Builder(MainActivity.this);
+                    builderInner.setTitle("New list name:");
+
+                    final EditText ETname = new EditText(MainActivity.this);
+                    builderInner.setView(ETname);
+
+                    builderInner.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builderInner.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String name = String.valueOf(ETname.getText());
+                            if(name.equals(""))
+                                Util.message("List must have a name", MainActivity.this);
+                            else if(Util.contains(lists, name)) {
+                                Util.message("List name must be unique", MainActivity.this);
+                            }
+                            else{
+                                save();
+                                options.list = name;
+                                Util.addTable(name, MainActivity.this);
+                                Util.saveOptions(options, MainActivity.this);
+                                load();
+                                arrayAdapter.insert(name, arrayAdapter.getCount()-1);
+                                arrayAdapter.notifyDataSetChanged();
+                                update(BACK);
+                            }
+                        }
+                    });
+                    builderInner.show();
+                }else{
+                    save();
+                    options.list = strName;
+                    saveOptions(options, MainActivity.this);
+                    load();
+                }
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builderSingle.setNeutralButton("Delete", null);
+
+        final AlertDialog dialog = builderSingle.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (arrayAdapter.getCount() == 2) {
+                    Util.message("You can't delete the last list", MainActivity.this);
+                    return;
+                }
+                dialog.dismiss();
+                final AlertDialog.Builder builderDelete = new AlertDialog.Builder(MainActivity.this);
+                builderDelete.setTitle("Are you sure you want to delete the list " + options.list + "?");
+                builderDelete.setNegativeButton("Calcel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                builderDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        Util.removeTable(options.list, MainActivity.this);
+                        arrayAdapter.remove(options.list);
+                        options.list = arrayAdapter.getItem(0);
+                        arrayAdapter.notifyDataSetChanged();
+                        saveOptions(options, MainActivity.this);
+                        load();
+                    }
+                });
+                builderDelete.show();
+            }
+        });
+
+        //builderSingle.show();
 
     }
 
@@ -572,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         save();
-        if(notification && t.size()!=0)
+        if(options.notification && t.size()!=0)
             NotificationReciever.showNotification(t.getFirst().getName(), t.getFirst().getDescription(), t.getFirst().getColorId(), this);
     }
 
