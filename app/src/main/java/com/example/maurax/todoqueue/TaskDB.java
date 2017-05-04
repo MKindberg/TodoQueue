@@ -80,9 +80,8 @@ public class TaskDB extends SQLiteOpenHelper {
     }
 
     public void addTable(SQLiteDatabase db, String name){
-        // TODO Check if table exists
         // TODO Sanitize input
-        String query ="create table "
+        String query ="create table if not exists"
                 + "'" + name  +"' ( "
                 + COLUMN_TASK_NAME + " text, "
                 + COLUMN_TASK_DESC + " text, "

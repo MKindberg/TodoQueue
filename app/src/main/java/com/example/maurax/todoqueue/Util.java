@@ -3,6 +3,7 @@ package com.example.maurax.todoqueue;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -223,7 +224,7 @@ class Util {
 
     public static boolean contains(String[] list, String item){
         for(String i:list)
-            if(i.equals(item))
+            if (i.equals(item))
                 return true;
             return false;
     }

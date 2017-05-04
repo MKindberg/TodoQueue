@@ -95,4 +95,13 @@
                 android:background="#FFFFFF"/>
         </TableRow>
     </TableLayout>
+    <TextView
+        android:id="@+id/ListText"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:textAlignment="viewStart"
+        android:text="List"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        />
 </RelativeLayout>

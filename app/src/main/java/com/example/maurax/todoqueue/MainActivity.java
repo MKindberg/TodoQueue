@@ -370,19 +370,17 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTask;
         TextView tvDesc;
         TextView tvPrio;
-        TextView tvList;
+        TextView tvList = (TextView) findViewById(R.id.ListText);
         View back;
         if(card==FRONT) {
             tvTask = (TextView) findViewById(R.id.TaskView);
             tvDesc = (TextView) findViewById(R.id.DescView);
             tvPrio = (TextView) findViewById(R.id.PrioText);
-            tvList = (TextView) findViewById(R.id.ListText);
             back = findViewById(R.id.textGroup);
         }else{
             tvTask = (TextView) findViewById(R.id.TaskViewBack);
             tvDesc = (TextView) findViewById(R.id.DescViewBack);
             tvPrio = (TextView) findViewById(R.id.PrioTextBack);
-            tvList = (TextView) findViewById(R.id.ListTextBack);
             back = findViewById(R.id.textGroupBack);
         }
 
@@ -565,7 +563,6 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.listOp:
                         listDialog();
-
                         return true;
 
                     default:
@@ -609,8 +606,9 @@ public class MainActivity extends AppCompatActivity {
                             String name = String.valueOf(ETname.getText());
                             if(name.equals(""))
                                 Util.message("List must have a name", MainActivity.this);
-                            else if(Util.contains(lists, name))
+                            else if(Util.contains(lists, name)) {
                                 Util.message("List name must be unique", MainActivity.this);
+                            }
                             else{
                                 save();
                                 options.list = name;
@@ -630,6 +628,7 @@ public class MainActivity extends AppCompatActivity {
                     saveOptions(options, MainActivity.this);
                     load();
                 }
+                dialog.dismiss();
             }
         });
 
