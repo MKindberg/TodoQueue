@@ -108,7 +108,7 @@ public class TaskDB extends SQLiteOpenHelper {
             cv.put(COLUMN_TASK_NAME, t.getName());
             cv.put(COLUMN_TASK_DESC, t.getDescription());
             cv.put(COLUMN_TASK_PRIO, t.getPriority());
-            db.insert(table, null, cv);
+            db.insert("'"+table+"'", null, cv);
         }
     }
 
