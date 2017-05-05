@@ -11,15 +11,16 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by marcus on 2016-11-13.
  */
 
-class ListAllAdapter extends ArrayAdapter<Task> {
+class ListAllAdapter<T> extends ArrayAdapter<Task> {
 
-    private final List<Task> data;
+    private List<Task> data;
     private final Context context;
 
     public ListAllAdapter(Context context, int listitem, List<Task> objects) {
@@ -79,6 +80,14 @@ class ListAllAdapter extends ArrayAdapter<Task> {
         TextView title;
         TextView desc;
         TextView line;
+    }
+
+    public void setData(LinkedList<Task> t){
+        if(data!=t) {
+            data.clear();
+            for (Task tt : t)
+                data.add(tt);
+        }
     }
 
 }

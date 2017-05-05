@@ -97,6 +97,14 @@ public class Tasks implements Parcelable {
         return tasks.getFirst();
     }
 
+    public void moveUp(int pos){
+        tasks.add(pos - 1, tasks.remove(pos));
+    }
+
+    public void moveDown(int pos){
+        tasks.add(pos + 1, tasks.remove(pos));
+    }
+
     public int size() {
         return tasks.size();
     }
