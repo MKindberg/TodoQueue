@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 import static android.os.Build.VERSION_CODES.M;
+import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
 public class ListAllActivity extends ListsActivity {
@@ -386,12 +388,21 @@ public class ListAllActivity extends ListsActivity {
         moveDown();
     }
 
-    private void complete() {
+    void complete() {
         if (focused != -1) {
-            l.remove(focused);
+            tasks.complete(focused);
             setFocus(focused, false);
             focused = -1;
             update();
+            Snackbar s = Snackbar.make(findViewById(R.id.listView), "Task completed", Snackbar.LENGTH_SHORT);
+            s.setAction("Undo", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tasks.undo();
+                    update();
+                }
+            });
+            s.show();
         } else
             Util.message(getResources().getString(R.string.lv_please_select), this);
     }

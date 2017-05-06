@@ -2,6 +2,8 @@ package com.example.maurax.todoqueue;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -33,7 +35,6 @@ public abstract class ListsActivity extends AppCompatActivity {
     public abstract void update();
     public abstract void save();
     public abstract void load();
-    
 
     void listDialog(final Context con){
         final AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);

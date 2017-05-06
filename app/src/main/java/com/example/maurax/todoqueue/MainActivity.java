@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
@@ -301,9 +303,19 @@ public class MainActivity extends ListsActivity {
         add();
     }
 
-    private void complete() {
-        if (tasks.complete())
+    void complete() {
+        if (tasks.complete()) {
             animate("complete");
+            Snackbar s = Snackbar.make(findViewById(R.id.mainView), "Task completed", Snackbar.LENGTH_SHORT);
+            s.setAction("Undo", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tasks.undo();
+                    update();
+                }
+            });
+            s.show();
+        }
         else
             Util.message(getResources().getString(R.string.list_empty_toast), this);
     }
