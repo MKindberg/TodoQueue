@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.text.InputFilter;
 import android.text.SpannableString;
@@ -33,18 +33,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 
+import static android.os.Build.VERSION_CODES.M;
+import static com.example.maurax.todoqueue.R.string.desc;
+import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
-public class ListAllActivity extends AppCompatActivity {
-    private LinkedList<Task> l;
-    private Tasks t;
+public class ListAllActivity extends ListsActivity {
+
     private ListView lv;
-    private ArrayAdapter<Task> aa;
+    private ListAllAdapter<Task> aa;
 
     private int focused = -1;
 
     private PopupMenu popup;
-    private Options options;
 
     private String filePath;
 
@@ -56,13 +57,15 @@ public class ListAllActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
 
+
+
         options = new Options();
         readIntent();
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
 
-        aa = new ListAllAdapter(this, R.layout.listitem, l);
+        aa = new ListAllAdapter(this, R.layout.listitem, tasks.getAll());
         lv.setAdapter(aa);
         filePath = getFilesDir().toString();
 
@@ -90,8 +93,7 @@ public class ListAllActivity extends AppCompatActivity {
 
     private void readIntent() {
         Intent i = getIntent();
-        t = i.getParcelableExtra("list");
-        l = t.getAll();
+        tasks = i.getParcelableExtra("list");
         options = i.getParcelableExtra("options");
     }
 
@@ -206,9 +208,8 @@ public class ListAllActivity extends AppCompatActivity {
                         if (focused != -1) {
                             tsk = aa.getItem(focused);
                         }
-                        t = new Tasks(l);
-                        t.sort();
-                        l = t.getAll();
+                        //tasks = new Tasks(l);
+                        tasks.sort();
                         update();
                         if (focused != -1) {
                             setFocus(focused, false);
@@ -232,7 +233,7 @@ public class ListAllActivity extends AppCompatActivity {
                         popup.show();
                         return true;
                     case R.id.listOp:
-                        listDialog();
+                        listDialog(ListAllActivity.this);
                         return true;
                     default:
                         return false;
@@ -357,7 +358,7 @@ public class ListAllActivity extends AppCompatActivity {
     private void moveUp() {
         if (focused > 0) {
             setFocus(focused, false);
-            l.add(focused - 1, l.remove(focused));
+            tasks.moveUp(focused);
             focused--;
             update();
             //setFocus(focused, true);
@@ -372,8 +373,8 @@ public class ListAllActivity extends AppCompatActivity {
     }
 
     private void moveDown() {
-        if (focused != -1 && focused != l.size() - 1) {
-            l.add(focused + 1, l.remove(focused));
+        if (focused != -1 && focused != tasks.size() - 1) {
+            tasks.moveDown(focused);
             setFocus(focused, false);
             focused++;
             update();
@@ -388,12 +389,21 @@ public class ListAllActivity extends AppCompatActivity {
         moveDown();
     }
 
-    private void complete() {
+    void complete() {
         if (focused != -1) {
-            l.remove(focused);
+            tasks.complete(focused);
             setFocus(focused, false);
             focused = -1;
             update();
+            Snackbar s = Snackbar.make(findViewById(R.id.listView), "Task completed", Snackbar.LENGTH_SHORT);
+            s.setAction("Undo", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tasks.undo();
+                    update();
+                }
+            });
+            s.show();
         } else
             Util.message(getResources().getString(R.string.lv_please_select), this);
     }
@@ -404,7 +414,7 @@ public class ListAllActivity extends AppCompatActivity {
 
     private void edit() {
         if (focused != -1) {
-            final Task tsk = l.get(focused);
+            final Task tsk = tasks.get(focused);
             String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
             b.setTitle(getResources().getString(R.string.edit_lbl));
@@ -513,131 +523,24 @@ public class ListAllActivity extends AppCompatActivity {
             Util.message(getResources().getString(R.string.lv_please_select), this);
     }
 
-    private void listDialog(){
-        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
-        builderSingle.setTitle("Select a list:");
-
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
-        final String[] lists = Util.loadLists(this);
-        arrayAdapter.addAll(lists);
-        arrayAdapter.add("Add new");
-
-        builderSingle.setSingleChoiceItems(arrayAdapter, arrayAdapter.getPosition(options.list), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final String strName = arrayAdapter.getItem(which);
-                if(strName.equals("Add new")){
-                    AlertDialog.Builder builderInner = new AlertDialog.Builder(ListAllActivity.this);
-                    builderInner.setTitle("New list name:");
-
-                    final EditText ETname = new EditText(ListAllActivity.this);
-                    builderInner.setView(ETname);
-
-                    builderInner.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                    builderInner.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String name = String.valueOf(ETname.getText());
-                            if(name.equals(""))
-                                Util.message("List must have a name", ListAllActivity.this);
-                            else if(Util.contains(lists, name)) {
-                                Util.message("List name must be unique", ListAllActivity.this);
-                                Log.i("Contains", "True");
-                            }
-                            else{
-                                Log.i("Contains", "False");
-                                save();
-                                options.list = name;
-                                Util.addTable(name, ListAllActivity.this);
-                                saveOptions(options, ListAllActivity.this);
-                                load();
-                                arrayAdapter.insert(name, arrayAdapter.getCount()-1);
-                                arrayAdapter.notifyDataSetChanged();
-                                update();
-                            }
-                        }
-                    });
-                    builderInner.show();
-                }else{
-                    save();
-                    options.list = strName;
-                    saveOptions(options, ListAllActivity.this);
-                    load();
-                }
-                dialog.dismiss();
-            }
-        });
-
-        builderSingle.setNegativeButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builderSingle.setNeutralButton("Delete", null);
-
-        final AlertDialog dialog = builderSingle.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (arrayAdapter.getCount() == 2) {
-                    Util.message("You can't delete the last list", ListAllActivity.this);
-                    return;
-                }
-                dialog.dismiss();
-                final AlertDialog.Builder builderDelete = new AlertDialog.Builder(ListAllActivity.this);
-                builderDelete.setTitle("Are you sure you want to delete the list " + options.list + "?");
-                builderDelete.setNegativeButton("Calcel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-                builderDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface d, int which) {
-                        Util.removeTable(options.list, ListAllActivity.this);
-                        arrayAdapter.remove(options.list);
-                        options.list = arrayAdapter.getItem(0);
-                        arrayAdapter.notifyDataSetChanged();
-                        saveOptions(options, ListAllActivity.this);
-                        load();
-                    }
-                });
-                builderDelete.show();
-            }
-        });
-
-        //builderSingle.show();
-
-    }
-
     public void edit(View v) {
         edit();
     }
 
     private void back() {
-        t = new Tasks(l);
         Intent i = new Intent(ListAllActivity.this, MainActivity.class);
         i.putExtra("sender", "listAll");
-        i.putExtra("list", t);
+        i.putExtra("list", tasks);
         i.putExtra("options", options);
 
         ListAllActivity.this.startActivity(i);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    private void update() {
+    public void update() {
+        aa.setData(tasks.getAll());
         aa.notifyDataSetChanged();
+        lv.invalidateViews();
         color();
         TextView tvList = (TextView) findViewById(R.id.ListText);
         tvList.setText(options.list);
@@ -669,30 +572,15 @@ public class ListAllActivity extends AppCompatActivity {
         b.create().show();*/
     }
 
-    private void save() {
-        Util.saveTasks(t, options.list, this);
-        saveOptions(options, this);
-        Util.updateWidget(this);
-    }
 
-    private void load() {
+
+    public void load() {
         options = Util.loadOptions(this);
-        t = Util.loadTasks(options.list, this);
+        tasks = Util.loadTasks(options.list, this);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        save();
-        if (options.notification && t.size() != 0)
-            NotificationReciever.showNotification(t.getFirst().getName(), t.getFirst().getDescription(), t.getFirst().getColorId(), this);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        load();
-        NotificationReciever.cancelNotification(this);
-    }
+
+
 }
 

@@ -22,6 +22,9 @@ public class Tasks implements Parcelable {
     };
     private final LinkedList<Task> tasks;
 
+    private Task delTask = null;
+    private int delIndex = -1;
+
     public Tasks() {
         tasks = new LinkedList<Task>();
     }
@@ -59,8 +62,24 @@ public class Tasks implements Parcelable {
     public boolean complete() {
         if (tasks.isEmpty())
             return false;
+        delTask = tasks.getFirst();
+        delIndex = 0;
         tasks.remove();
         return true;
+    }
+
+    public boolean complete(int index) {
+        if (tasks.isEmpty())
+            return false;
+        delIndex = index;
+        delTask = tasks.remove(index);
+        return true;
+    }
+
+    public void undo(){
+        if(delIndex!=-1){
+            tasks.add(delIndex, delTask);
+        }
     }
 
     /**
@@ -97,6 +116,14 @@ public class Tasks implements Parcelable {
         return tasks.getFirst();
     }
 
+    public void moveUp(int pos){
+        tasks.add(pos - 1, tasks.remove(pos));
+    }
+
+    public void moveDown(int pos){
+        tasks.add(pos + 1, tasks.remove(pos));
+    }
+
     public int size() {
         return tasks.size();
     }
@@ -113,5 +140,9 @@ public class Tasks implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeList(tasks);
+    }
+
+    public Task get(int index) {
+        return tasks.get(index);
     }
 }
