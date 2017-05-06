@@ -34,12 +34,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 import static android.os.Build.VERSION_CODES.M;
+import static com.example.maurax.todoqueue.R.string.desc;
 import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
 public class ListAllActivity extends ListsActivity {
 
-    private LinkedList<Task> l;
     private ListView lv;
     private ListAllAdapter<Task> aa;
 
@@ -57,13 +57,15 @@ public class ListAllActivity extends ListsActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
 
+
+
         options = new Options();
         readIntent();
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
 
-        aa = new ListAllAdapter(this, R.layout.listitem, l);
+        aa = new ListAllAdapter(this, R.layout.listitem, tasks.getAll());
         lv.setAdapter(aa);
         filePath = getFilesDir().toString();
 
@@ -92,7 +94,6 @@ public class ListAllActivity extends ListsActivity {
     private void readIntent() {
         Intent i = getIntent();
         tasks = i.getParcelableExtra("list");
-        l = tasks.getAll();
         options = i.getParcelableExtra("options");
     }
 
@@ -207,7 +208,7 @@ public class ListAllActivity extends ListsActivity {
                         if (focused != -1) {
                             tsk = aa.getItem(focused);
                         }
-                        tasks = new Tasks(l);
+                        //tasks = new Tasks(l);
                         tasks.sort();
                         update();
                         if (focused != -1) {
@@ -372,7 +373,7 @@ public class ListAllActivity extends ListsActivity {
     }
 
     private void moveDown() {
-        if (focused != -1 && focused != l.size() - 1) {
+        if (focused != -1 && focused != tasks.size() - 1) {
             tasks.moveDown(focused);
             setFocus(focused, false);
             focused++;
@@ -413,7 +414,7 @@ public class ListAllActivity extends ListsActivity {
 
     private void edit() {
         if (focused != -1) {
-            final Task tsk = l.get(focused);
+            final Task tsk = tasks.get(focused);
             String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
             b.setTitle(getResources().getString(R.string.edit_lbl));
@@ -527,7 +528,6 @@ public class ListAllActivity extends ListsActivity {
     }
 
     private void back() {
-        tasks = new Tasks(l);
         Intent i = new Intent(ListAllActivity.this, MainActivity.class);
         i.putExtra("sender", "listAll");
         i.putExtra("list", tasks);
@@ -572,30 +572,15 @@ public class ListAllActivity extends ListsActivity {
         b.create().show();*/
     }
 
-    public void save() {
-        Util.saveTasks(tasks, options.list, this);
-        saveOptions(options, this);
-        Util.updateWidget(this);
-    }
+
 
     public void load() {
         options = Util.loadOptions(this);
         tasks = Util.loadTasks(options.list, this);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        save();
-        if (options.notification && tasks.size() != 0)
-            NotificationReciever.showNotification(tasks.getFirst().getName(), tasks.getFirst().getDescription(), tasks.getFirst().getColorId(), this);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        load();
-        NotificationReciever.cancelNotification(this);
-    }
+
+
 }
 

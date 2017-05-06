@@ -141,4 +141,8 @@ public class Tasks implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeList(tasks);
     }
+
+    public Task get(int index) {
+        return tasks.get(index);
+    }
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import static android.R.id.list;
 import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveLists;
+import static com.example.maurax.todoqueue.Util.saveOptions;
 import static java.util.Collections.swap;
 
 /**
@@ -33,7 +34,11 @@ public abstract class ListsActivity extends AppCompatActivity {
     Tasks tasks;
 
     public abstract void update();
-    public abstract void save();
+    public void save() {
+        Util.saveTasks(tasks, options.list, this);
+        Util.saveOptions(options, this);
+        Util.updateWidget(this);
+    }
     public abstract void load();
 
     void listDialog(final Context con){
@@ -74,7 +79,7 @@ public abstract class ListsActivity extends AppCompatActivity {
                                 save();
                                 options.list = name;
                                 Util.addTable(name, con);
-                                Util.saveOptions(options, con);
+                                saveOptions(options, con);
                                 load();
                                 arrayAdapter.insert(name, arrayAdapter.getCount()-1);
                                 arrayAdapter.notifyDataSetChanged();
@@ -87,7 +92,7 @@ public abstract class ListsActivity extends AppCompatActivity {
                 }else{
                     save();
                     options.list = strName;
-                    Util.saveOptions(options, con);
+                    saveOptions(options, con);
                     load();
                     update();
                 }
@@ -133,7 +138,7 @@ public abstract class ListsActivity extends AppCompatActivity {
                         arrayAdapter.remove(options.list);
                         options.list = arrayAdapter.getItem(0);
                         arrayAdapter.notifyDataSetChanged();
-                        Util.saveOptions(options, con);
+                        saveOptions(options, con);
                         load();
                         dialog.getListView().setItemChecked(0, true);
                     }
@@ -209,5 +214,20 @@ public abstract class ListsActivity extends AppCompatActivity {
 
         //builderSingle.show();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        save();
+        if (options.notification && tasks.size() != 0)
+            NotificationReciever.showNotification(tasks.getFirst().getName(), tasks.getFirst().getDescription(), tasks.getFirst().getColorId(), this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        load();
+        NotificationReciever.cancelNotification(this);
     }
 }

@@ -532,12 +532,6 @@ public class MainActivity extends ListsActivity {
         update(FRONT);
     }
 
-    public void save() {
-        Util.saveTasks(tasks, options.list, this);
-        Util.saveOptions(options, this);
-        Util.updateWidget(this);
-    }
-
     public void menu(View v) {
         popup.show();
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -574,27 +568,6 @@ public class MainActivity extends ListsActivity {
             }
         });
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu(relLay);
-        return true;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        save();
-        if(options.notification && tasks.size()!=0)
-            NotificationReciever.showNotification(tasks.getFirst().getName(), tasks.getFirst().getDescription(), tasks.getFirst().getColorId(), this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        load();
-        NotificationReciever.cancelNotification(this);
     }
 
     @Override
