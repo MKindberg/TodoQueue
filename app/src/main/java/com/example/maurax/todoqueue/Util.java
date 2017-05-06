@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by marcus on 2017-04-01.
@@ -39,11 +40,11 @@ class Util {
         con.sendBroadcast(i);
     }
 
-    public static void saveTasks(Tasks t, String name, Context con){
+    public static void saveTasks(Tasks tasks, String table, Context con){
         if(mHelper==null)
             mHelper = new TaskDB(con);
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        mHelper.fillTable(db, name, t);
+        mHelper.fillTable(db, table, tasks);
         db.close();
     }
         /*String filePath = con.getFilesDir().toString();
@@ -173,11 +174,11 @@ class Util {
         return res;*/
     }
 
-    public static String[] loadLists(Context con){
+    public static List<String> loadLists(Context con){
         if(mHelper==null)
             mHelper = new TaskDB(con);
         SQLiteDatabase db = mHelper.getReadableDatabase();
-        String[] l = mHelper.getAllLists(db);
+        List<String> l = mHelper.getAllLists(db);
         db.close();
         return l;
         /*
@@ -186,6 +187,14 @@ class Util {
             f.mkdir();
         message(Integer.toString(f.list().length), con);
         return f.list();*/
+    }
+
+    public static void saveLists(List<String> lists, Context con) {
+        if(mHelper==null)
+            mHelper = new TaskDB(con);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mHelper.saveLists(db, lists);
+        db.close();
     }
 
     public static void addTable(String name, Context con){
@@ -228,4 +237,6 @@ class Util {
                 return true;
             return false;
     }
+
+
 }

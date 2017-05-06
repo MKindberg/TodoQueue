@@ -9,8 +9,10 @@ import android.net.UrlQuerySanitizer;
 import android.util.Log;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import static android.R.attr.version;
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.FileObserver.CREATE;
 
@@ -68,15 +70,24 @@ public class TaskDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public String[] getAllLists(SQLiteDatabase db){
+    public List<String> getAllLists(SQLiteDatabase db){
         Cursor res = db.rawQuery("select * from "+ TABLE_LISTS_NAME, null);
-        String[] lists = new String[res.getCount()];
+        List<String> lists = new LinkedList<String>();
         res.moveToNext();
-        for(int i=0;i<lists.length;i++){
-            lists[i] = res.getString(0);
+        for(int i=0;i<res.getCount();i++){
+            lists.add(res.getString(0));
             res.moveToNext();
         }
         return lists;
+    }
+
+    public void saveLists(SQLiteDatabase db, List<String> lists){
+        db.execSQL("delete from " + TABLE_LISTS_NAME);
+        for(String l:lists){
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_LIST_NAME, l);
+            db.insert(TABLE_LISTS_NAME, null, cv);
+        }
     }
 
     public void addTable(SQLiteDatabase db, String name){
