@@ -119,6 +119,17 @@ public class ListAllActivity extends ListsActivity {
             }
 
 
+
+        });
+
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                focused = position;
+                setFocus(position, true);
+                edit();
+                return true;
+            }
         });
 
         assert relLay != null;
@@ -128,11 +139,6 @@ public class ListAllActivity extends ListsActivity {
                 public boolean onDoubleTap(MotionEvent e) {
                     back();
                     return super.onDoubleTap(e);
-                }
-
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    tutorial();
                 }
             });
 
@@ -162,10 +168,6 @@ public class ListAllActivity extends ListsActivity {
                     return super.onDoubleTap(e);
                 }
 
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    tutorial();
-                }
             });
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -415,7 +417,6 @@ public class ListAllActivity extends ListsActivity {
     private void edit() {
         if (focused != -1) {
             final Task tsk = tasks.get(focused);
-            String desc;
             AlertDialog.Builder b = new AlertDialog.Builder(this);
             b.setTitle(getResources().getString(R.string.edit_lbl));
 

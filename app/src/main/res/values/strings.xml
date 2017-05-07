@@ -9,7 +9,7 @@
 
     <string name="ok">OK!</string>
     <string name="add_new_lbl">Add new task</string>
-    <string name="edit_lbl">Add new task</string>
+    <string name="edit_lbl">Edit task</string>
     <string name="name">Name</string>
     <string name="desc">Description</string>
     <string name="cancel">Cancel</string>

@@ -88,7 +88,7 @@ public class MainActivity extends ListsActivity {
 
                 @Override
                 public void onLongPress(MotionEvent e) {
-                    tutorial();
+                    edit();
                 }
             });
 
@@ -186,6 +186,113 @@ public class MainActivity extends ListsActivity {
         });
 
         b.setCancelable(true);
+        b.create().show();
+    }
+
+    private void edit(){
+        final Task tsk = tasks.getFirst();
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle(getResources().getString(R.string.edit_lbl));
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        final EditText inTask = new EditText(this);
+        InputFilter[] filters = new InputFilter[2];
+        filters[0] = new InputFilter.LengthFilter(15);
+        filters[1] = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                boolean keepOriginal = true;
+                StringBuilder sb = new StringBuilder(end - start);
+                for (int i = start; i < end; i++) {
+                    char c = source.charAt(i);
+                    if (isCharAllowed(c))
+                        sb.append(c);
+                    else
+                        keepOriginal = false;
+                }
+                if (keepOriginal)
+                    return null;
+                else {
+                    if (source instanceof Spanned) {
+                        SpannableString sp = new SpannableString(sb);
+                        TextUtils.copySpansFrom((Spanned) source, start, end, null, sp, 0);
+                        return sp;
+                    } else {
+                        return sb;
+                    }
+                }
+            }
+
+            private boolean isCharAllowed(char c) {
+                return c != '\n';
+            }
+        };
+        inTask.setFilters(filters);
+        inTask.setHint(getResources().getString(R.string.name));
+        inTask.setText(tsk.getName());
+        layout.addView(inTask);
+
+        final EditText inDesc = new EditText(this);
+        inDesc.setHint(getResources().getString(R.string.desc));
+        inDesc.setText(tsk.getDescription());
+        layout.addView(inDesc);
+
+        LinearLayout addLin = new LinearLayout(this);
+        TextView prioTitle = new TextView(this);
+        prioTitle.setText("Priority (1 is urgent)");
+        layout.addView(prioTitle);
+        prioTitle.setPadding(20, 20, 20, 20);
+
+        final SeekBar prioBar = new SeekBar(this);
+        prioBar.setMax(4);
+        prioBar.setProgress(tsk.getPriority() - 1);
+
+        final TextView prioTf = new TextView(this);
+        prioTf.setText(Integer.toString(prioBar.getProgress() + 1));
+
+        addLin.addView(prioBar);
+        addLin.addView(prioTf);
+        layout.addView(addLin);
+        prioBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 10));
+        prioTf.setLayoutParams(new LinearLayout.LayoutParams(50, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+
+        prioBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                prioTf.setText((progress + 1) + "");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
+        b.setView(layout);
+        b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                tsk.setName(inTask.getText().toString());
+                tsk.setDescription(inDesc.getText().toString());
+                tsk.setPriority(prioBar.getProgress() + 1);
+                update();
+            }
+        });
+        b.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
         b.create().show();
     }
 
