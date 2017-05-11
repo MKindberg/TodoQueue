@@ -180,6 +180,20 @@ public class ListAllActivity extends ListsActivity {
             }
         });
 
+        findViewById(R.id.ListText).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listDialog(ListAllActivity.this);
+            }
+        });
+        findViewById(R.id.SortbtnMain).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tasks.sort();
+                update();
+            }
+        });
+
     }
 
     private void checkTutorial() {

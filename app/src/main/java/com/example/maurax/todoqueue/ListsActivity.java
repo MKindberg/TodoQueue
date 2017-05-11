@@ -2,6 +2,8 @@ package com.example.maurax.todoqueue;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +34,7 @@ public abstract class ListsActivity extends AppCompatActivity {
 
     Options options;
     Tasks tasks;
+
 
     public abstract void update();
     public void save() {
