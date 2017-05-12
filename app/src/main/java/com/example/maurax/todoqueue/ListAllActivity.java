@@ -191,6 +191,7 @@ public class ListAllActivity extends ListsActivity {
             public void onClick(View v) {
                 tasks.sort();
                 update();
+                Util.message("Sorted", ListAllActivity.this);
             }
         });
 

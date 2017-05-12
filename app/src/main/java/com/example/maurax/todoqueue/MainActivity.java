@@ -144,6 +144,7 @@ public class MainActivity extends ListsActivity {
                 tasks.sort();
                 update(FRONT);
                 update(BACK);
+                Util.message("Sorted", MainActivity.this);
             }
         });
     }
