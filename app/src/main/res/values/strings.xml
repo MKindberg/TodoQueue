@@ -2,10 +2,13 @@
     <string name="app_name">TodoQueue</string>
     <string name="empty">List empty</string>
     <string name="please_add">Please add a task</string>
-    <string name="put_last_btn">▲ put_last ▲</string>
-    <string name="postpone_btn">◀\nP\no\ns\nt\np\no\nn\ne\n◀</string>
-    <string name="complete_btn">▶\nC\no\nm\np\nl\ne\nt\ne\n▶</string>
-    <string name="add_new_btn">▼ Add new ▼</string>
+    <string name="btn_put_last">▲ put_last ▲</string>
+    <string name="btn_postpone">◀\nP\no\ns\nt\np\no\nn\ne\n◀</string>
+    <string name="btn_complete">▶\nC\no\nm\np\nl\ne\nt\ne\n▶</string>
+    <string name="btn_add_new">▼ Add new ▼</string>
+    <string name="btn_move_down">▼ Move down ▼</string>
+    <string name="btn_move_up">▲ Move up ▲</string>
+    <string name="btn_edit">◀\nE\nd\ni\nt\n◀</string>
 
     <string name="ok">OK!</string>
     <string name="add_new_lbl">Add new task</string>
@@ -15,9 +18,7 @@
     <string name="cancel">Cancel</string>
     <string name="list_empty_toast">List is empty</string>
     <string name="title_activity_list_all">ListAllActivity</string>
-    <string name="move_down_btn">▼ Move down ▼</string>
-    <string name="move_up_btn">▲ Move up ▲</string>
-    <string name="edit_btn">◀\nE\nd\ni\nt\n◀</string>
+
     <string name="lv_please_select">Please select an item first</string>
     <string name="lv_cant_down">Can\'t move the last item down</string>
     <string name="lv_cant_up">Can\'t move first item up</string>

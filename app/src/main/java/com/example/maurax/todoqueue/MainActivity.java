@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -16,25 +15,20 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.GestureDetector;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
-import java.io.IOException;
-
-public class MainActivity extends ListsActivity {
+public class MainActivity extends BasicListActivity {
 
     private String name;
     private String desc;
@@ -43,45 +37,56 @@ public class MainActivity extends ListsActivity {
     private Animation in;
     private Animation out;
 
-    private RelativeLayout relLay;
-
-    private String filePath;
-
-    private PopupMenu popup;
-
     private final static boolean FRONT = true;
     private final static boolean BACK = false;
 
     private float x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        tasks = new Tasks();
+    void findViews(){
 
-        filePath = this.getFilesDir().getPath();
+    }
 
-        options = new Options();
+    void setUp(){
+        ((Button) findViewById(R.id.buttonBot)).setText(R.string.btn_add_new);
+        ((Button) findViewById(R.id.buttonTop)).setText(R.string.btn_put_last);
+        ((Button) findViewById(R.id.buttonLeft)).setText(R.string.btn_postpone);
+        ((Button) findViewById(R.id.buttonRight)).setText(R.string.btn_complete);
+    }
 
-        createMenu();
+    void setListeners(){
+        super.setListeners();
+        ((Button) findViewById(R.id.buttonBot)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                add();
+            }
+        });
+        ((Button) findViewById(R.id.buttonTop)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                putLast();
+            }
+        });
+        ((Button) findViewById(R.id.buttonLeft)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postpone();
+            }
+        });
+        ((Button) findViewById(R.id.buttonRight)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                complete();
+            }
+        });
 
-        readIntent();
+        ((RelativeLayout) findViewById(R.id.mainView)).setOnTouchListener(new View.OnTouchListener() {
 
-
-
-        update(FRONT);
-        update(BACK);
-
-        relLay = (RelativeLayout) findViewById(R.id.mainView);
-
-        relLay.setOnTouchListener(new View.OnTouchListener() {
-
-            private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
                     Intent i = new Intent(MainActivity.this, ListAllActivity.class);
-                    i.putExtra("list", tasks);
+                    i.putExtra("tasks", tasks);
                     i.putExtra("options", options);
                     MainActivity.this.startActivity(i);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -131,79 +136,57 @@ public class MainActivity extends ListsActivity {
                 return true;
             }
         });
-
-        findViewById(R.id.ListText).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listDialog(MainActivity.this);
-            }
-        });
-        findViewById(R.id.SortbtnMain).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tasks.sort();
-                update(FRONT);
-                update(BACK);
-                Util.message("Sorted", MainActivity.this);
-            }
-        });
     }
 
-    private void createMenu() {
-        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
-        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
-    }
-
-    private void readIntent() {
+    void readIntent() {
         Intent in = getIntent();
-        if (!"listAll".equals(in.getStringExtra("sender"))) {
-            load();
-            checkTutorial();
+        if ("listAll".equals(in.getStringExtra("sender"))) {
+            tasks = in.getParcelableExtra("list");
+            options = in.getParcelableExtra("options");
+
+
 
         }
     else {
-            tasks = in.getParcelableExtra("list");
-            options = in.getParcelableExtra("options");
-            popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
-            popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
+            load();
+            //checkTutorial();
         }
     }
-    private void checkTutorial() {
-        File f = new File(filePath + "tutorial");
-        if (!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            tutorial();
-        }
-    }
+//    private void checkTutorial() {
+//        File f = new File(filePath + "tutorial");
+//        if (!f.exists()) {
+//            try {
+//                f.createNewFile();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            tutorial();
+//        }
+//    }
 
     private void tutorial() {
-        final File f = new File(filePath + "tutorial");
-        AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setMessage("Swipe towards the edges or press them to handle the list of tasks.\n" +
-                "Double tap to enter another interface where you can edit the items and list order\n" +
-                "The notification will only show when you're out of the app and the list isn'tasks empty");
-        /*b.setMessage(getResources().getString(R.string.instructions) + ":\n" +
-                "1. " + getResources().getString(R.string.tutorial_down) +
-                "\n2. " + getResources().getString(R.string.tutorial_right) +
-                "\n3. " + getResources().getString(R.string.tutorial_up) +
-                "\n4. " + getResources().getString(R.string.tutorial_left) +
-                "\n5. " + getResources().getString(R.string.tutorial_double) +
-                "\n6. " + getResources().getString(R.string.tutorial_long));*/
-        b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        b.setCancelable(true);
-        b.create().show();
+//        final File f = new File(filePath + "tutorial");
+//        AlertDialog.Builder b = new AlertDialog.Builder(this);
+//        b.setMessage("Swipe towards the edges or press them to handle the list of tasks.\n" +
+//                "Double tap to enter another interface where you can edit the items and list order\n" +
+//                "The notification will only show when you're out of the app and the list isn'tasks empty");
+//        /*b.setMessage(getResources().getString(R.string.instructions) + ":\n" +
+//                "1. " + getResources().getString(R.string.tutorial_down) +
+//                "\n2. " + getResources().getString(R.string.tutorial_right) +
+//                "\n3. " + getResources().getString(R.string.tutorial_up) +
+//                "\n4. " + getResources().getString(R.string.tutorial_left) +
+//                "\n5. " + getResources().getString(R.string.tutorial_double) +
+//                "\n6. " + getResources().getString(R.string.tutorial_long));*/
+//        b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                dialog.cancel();
+//            }
+//        });
+//
+//        b.setCancelable(true);
+//        b.create().show();
+        Util.message("Tutorial", this);
     }
 
     private void edit(){
@@ -423,10 +406,6 @@ public class MainActivity extends ListsActivity {
         b.create().show();
     }
 
-    public void add(View v) {
-        add();
-    }
-
     void complete() {
         if (tasks.complete()) {
             animate("complete");
@@ -444,10 +423,6 @@ public class MainActivity extends ListsActivity {
             Util.message(getResources().getString(R.string.list_empty_toast), this);
     }
 
-    public void complete(View v) {
-        complete();
-    }
-
     private void putLast() {
         Task tsk = tasks.getFirst();
         if (tasks.toLast()) {
@@ -457,10 +432,6 @@ public class MainActivity extends ListsActivity {
             animate("putLast");
         } else
             Util.message(getResources().getString(R.string.list_empty_toast), this);
-    }
-
-    public void putLast(View v) {
-        putLast();
     }
 
     private void postpone() {
@@ -473,11 +444,6 @@ public class MainActivity extends ListsActivity {
         } else
             Util.message(getString(R.string.list_empty_toast), this);
     }
-
-    public void postpone(View v) {
-        postpone();
-    }
-
 
     public void update(){
         update(FRONT);

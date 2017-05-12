@@ -13,7 +13,6 @@ import android.text.InputFilter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -21,7 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -31,23 +30,13 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 
-import static android.os.Build.VERSION_CODES.M;
-import static com.example.maurax.todoqueue.R.string.desc;
-import static com.example.maurax.todoqueue.Util.message;
-import static com.example.maurax.todoqueue.Util.saveOptions;
-
-public class ListAllActivity extends ListsActivity {
+public class ListAllActivity extends BasicListActivity {
 
     private ListView lv;
     private ListAllAdapter<Task> aa;
 
     private int focused = -1;
-
-    private PopupMenu popup;
-
-    private String filePath;
 
     private float x1;
     private float y1;
@@ -55,27 +44,27 @@ public class ListAllActivity extends ListsActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_all);
 
 
 
-        options = new Options();
-        readIntent();
+
+    }
+
+    void findViews(){
+
+    }
+
+    void setUp(){
+        ((Button) findViewById(R.id.buttonBot)).setText(R.string.btn_move_down);
+        ((Button) findViewById(R.id.buttonTop)).setText(R.string.btn_move_up);
+        ((Button) findViewById(R.id.buttonLeft)).setText(R.string.btn_edit);
+        ((Button) findViewById(R.id.buttonRight)).setText(R.string.btn_complete);
 
         lv = (ListView) findViewById(R.id.listView);
         assert lv != null;
-
         aa = new ListAllAdapter(this, R.layout.listitem, tasks.getAll());
         lv.setAdapter(aa);
-        filePath = getFilesDir().toString();
 
-
-
-        createMenu();
-
-        setListeners();
-        checkTutorial();
-        update();
         lv.post(new Runnable() {
             @Override
             public void run() {
@@ -84,20 +73,38 @@ public class ListAllActivity extends ListsActivity {
         });
     }
 
-    private void createMenu() {
-        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
-        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
-    }
-
-    private void readIntent() {
+    void readIntent() {
         Intent i = getIntent();
-        tasks = i.getParcelableExtra("list");
+        tasks = i.getParcelableExtra("tasks");
         options = i.getParcelableExtra("options");
     }
 
-    private void setListeners() {
+    void setListeners() {
+        super.setListeners();
+        ((Button) findViewById(R.id.buttonBot)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveDown();
+            }
+        });
+        ((Button) findViewById(R.id.buttonTop)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveUp();
+            }
+        });
+        ((Button) findViewById(R.id.buttonLeft)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                edit();
+            }
+        });
+        ((Button) findViewById(R.id.buttonRight)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                complete();
+            }
+        });
         View filler = findViewById(R.id.filler);
         final RelativeLayout relLay = (RelativeLayout) findViewById(R.id.relLay2);
 
@@ -132,7 +139,6 @@ public class ListAllActivity extends ListsActivity {
             }
         });
 
-        assert relLay != null;
         lv.setOnTouchListener(new View.OnTouchListener() {
             private final GestureDetector gestureDetector = new GestureDetector(relLay.getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -180,34 +186,19 @@ public class ListAllActivity extends ListsActivity {
             }
         });
 
-        findViewById(R.id.ListText).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listDialog(ListAllActivity.this);
-            }
-        });
-        findViewById(R.id.SortbtnMain).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tasks.sort();
-                update();
-                Util.message("Sorted", ListAllActivity.this);
-            }
-        });
-
     }
 
-    private void checkTutorial() {
-        File f = new File(filePath + "tutorial2");
-        if (!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            tutorial();
-        }
-    }
+//    private void checkTutorial() {
+//        File f = new File(filePath + "tutorial2");
+//        if (!f.exists()) {
+//            try {
+//                f.createNewFile();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            tutorial();
+//        }
+//    }
 
     public void menu(View v) {
         popup.show();
@@ -385,10 +376,6 @@ public class ListAllActivity extends ListsActivity {
             Util.message(getResources().getString(R.string.lv_cant_up), this);
     }
 
-    public void moveUp(View v) {
-        moveUp();
-    }
-
     private void moveDown() {
         if (focused != -1 && focused != tasks.size() - 1) {
             tasks.moveDown(focused);
@@ -400,10 +387,6 @@ public class ListAllActivity extends ListsActivity {
             Util.message(getResources().getString(R.string.lv_please_select), this);
         else
             Util.message(getResources().getString(R.string.lv_cant_down), this);
-    }
-
-    public void moveDown(View v) {
-        moveDown();
     }
 
     void complete() {
@@ -423,10 +406,6 @@ public class ListAllActivity extends ListsActivity {
             s.show();
         } else
             Util.message(getResources().getString(R.string.lv_please_select), this);
-    }
-
-    public void complete(View v) {
-        complete();
     }
 
     private void edit() {
@@ -537,10 +516,6 @@ public class ListAllActivity extends ListsActivity {
             b.create().show();
         } else
             Util.message(getResources().getString(R.string.lv_please_select), this);
-    }
-
-    public void edit(View v) {
-        edit();
     }
 
     private void back() {

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Button
+        android:id="@+id/buttonBot"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/button_back"
+        android:textColor="#999" />
+
+    <Button
+        android:id="@+id/buttonTop"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/button_back"
+        android:stateListAnimator="@null"
+        android:textColor="#999" />
+
+    <Button
+        android:id="@+id/buttonLeft"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="50dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/button_back"
+        android:textColor="#999" />
+
+    <Button
+        android:id="@+id/buttonRight"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="50dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/button_back"
+        android:textColor="#999" />
+
+    <Button
+        android:id="@+id/buttonMenu"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        style="?android:attr/borderlessButtonStyle"
+        android:background="@drawable/button_back"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:rotation="90"
+        android:text="..."
+        android:onClick="menu" />
+
+    <TextView
+        android:id="@+id/ListText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
+        android:text="List"
+        android:paddingStart="10dp"
+        android:paddingBottom="10dp"
+        android:layout_alignParentBottom="true"
+        />
+    <ImageView
+        android:id="@+id/SortbtnMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_sort_by_size"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:paddingEnd="5dp"
+        android:paddingBottom="2dp"
+        />
+</merge>

@@ -4,37 +4,78 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.EditText;
-import android.widget.RadioButton;
 
 import java.util.List;
 
-import static android.R.id.list;
 import static com.example.maurax.todoqueue.Util.message;
-import static com.example.maurax.todoqueue.Util.saveLists;
 import static com.example.maurax.todoqueue.Util.saveOptions;
-import static java.util.Collections.swap;
 
 /**
  * Created by marcus on 05/05/2017.
  */
 
-public abstract class ListsActivity extends AppCompatActivity {
+public abstract class BasicListActivity extends AppCompatActivity {
 
     Options options;
     Tasks tasks;
 
+    PopupMenu popup;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (this.getClass().getName().equals(MainActivity.class.getName())){
+            setContentView(R.layout.activity_main);
+        }else if(this.getClass().getName().equals(ListAllActivity.class.getName())){
+            setContentView(R.layout.activity_list_all);
+        }
+        tasks = new Tasks();
+        options = new Options();
+
+        setUp();
+        findViews();
+        createMenu();
+        readIntent();
+        setListeners();
+        update();
+
+    }
+
+    abstract void setUp();
+
+    abstract void readIntent();
+    abstract void findViews();
+
+    void createMenu() {
+        popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
+        popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
+        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
+    }
+    void setListeners(){
+        findViewById(R.id.ListText).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listDialog(BasicListActivity.this);
+            }
+        });
+        findViewById(R.id.SortbtnMain).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tasks.sort();
+                update();
+                Util.message("Sorted", BasicListActivity.this);
+            }
+        });
+    }
 
     public abstract void update();
     public void save() {
@@ -157,7 +198,7 @@ public abstract class ListsActivity extends AppCompatActivity {
                 if(index>0) {
                     lists.add(index-1, lists.remove(index));
                     lists.remove(lists.size()-1);
-                    Util.saveLists(lists, ListsActivity.this);
+                    Util.saveLists(lists, BasicListActivity.this);
                     lists.add("Add new");
                     dialog.getListView().setItemChecked(index-1, true);
                     arrayAdapter.notifyDataSetChanged();
@@ -172,8 +213,8 @@ public abstract class ListsActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                AlertDialog.Builder editBuilder = new AlertDialog.Builder(ListsActivity.this);
-                final EditText edittext = new EditText(ListsActivity.this);
+                AlertDialog.Builder editBuilder = new AlertDialog.Builder(BasicListActivity.this);
+                final EditText edittext = new EditText(BasicListActivity.this);
                 editBuilder.setMessage("Enter new name");
                 final String old = lists.get(position);
                 edittext.setText(old);
@@ -184,19 +225,19 @@ public abstract class ListsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String name = edittext.getText().toString();
                         if(name.isEmpty())
-                            message("List must have a name", ListsActivity.this);
+                            message("List must have a name", BasicListActivity.this);
                         else if(!name.equals(old) && lists.contains(name))
-                            message("Name must be unique", ListsActivity.this);
+                            message("Name must be unique", BasicListActivity.this);
                         else {
                             if (old.equals(options.list))
                                 options.list = name;
 
                             lists.set(position, name);
                             lists.remove(lists.size()-1);
-                            Tasks t = Util.loadTasks(old, ListsActivity.this);
-                            Util.removeTable(old, ListsActivity.this);
-                            Util.addTable(name, ListsActivity.this);
-                            Util.saveTasks(t, name, ListsActivity.this);
+                            Tasks t = Util.loadTasks(old, BasicListActivity.this);
+                            Util.removeTable(old, BasicListActivity.this);
+                            Util.addTable(name, BasicListActivity.this);
+                            Util.saveTasks(t, name, BasicListActivity.this);
                             lists.add("Add new");
                             update();
                             arrayAdapter.notifyDataSetChanged();
