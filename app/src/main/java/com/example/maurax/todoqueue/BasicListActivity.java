@@ -178,13 +178,14 @@ public abstract class BasicListActivity extends AppCompatActivity {
                 builderDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int which) {
+                        int pos = arrayAdapter.getPosition(options.list);
                         Util.removeTable(options.list, con);
                         arrayAdapter.remove(options.list);
-                        options.list = arrayAdapter.getItem(0);
+                        options.list = arrayAdapter.getItem((pos==0?0:pos-1));
                         arrayAdapter.notifyDataSetChanged();
                         saveOptions(options, con);
                         load();
-                        dialog.getListView().setItemChecked(0, true);
+                        dialog.getListView().setItemChecked((pos==0?0:pos-1), true);
                     }
                 });
                 builderDelete.show();
