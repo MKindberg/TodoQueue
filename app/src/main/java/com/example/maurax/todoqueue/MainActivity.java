@@ -620,7 +620,6 @@ public class MainActivity extends BasicListActivity {
         tasks = Util.loadTasks(options.list, this);
 
         popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
-        popup.getMenu().findItem(R.id.notifyOp).setChecked(options.notification);
 
         update(FRONT);
     }
@@ -644,11 +643,6 @@ public class MainActivity extends BasicListActivity {
                         options.colors = item.isChecked();
                         update(FRONT);
                         update(BACK);
-                        popup.show();
-                        return true;
-                    case R.id.notifyOp:
-                        item.setChecked(!item.isChecked());
-                        options.notification = item.isChecked();
                         popup.show();
                         return true;
                     case R.id.listOp:

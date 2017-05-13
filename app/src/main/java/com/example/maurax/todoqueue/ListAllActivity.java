@@ -235,11 +235,6 @@ public class ListAllActivity extends BasicListActivity {
                         color();
                         popup.show();
                         return true;
-                    case R.id.notifyOp:
-                        item.setChecked(!item.isChecked());
-                        options.notification = item.isChecked();
-                        popup.show();
-                        return true;
                     case R.id.listOp:
                         listDialog(ListAllActivity.this);
                         return true;

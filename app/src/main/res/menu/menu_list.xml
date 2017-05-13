@@ -19,10 +19,5 @@
         android:checkable="true"
         android:id="@+id/colorsOp"
         />
-    <item
-        android:title="Show notification"
-        android:checkable="true"
-        android:id="@+id/notifyOp"
-        />
 
 </menu>

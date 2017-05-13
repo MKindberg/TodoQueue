@@ -60,6 +60,7 @@ public class NotificationReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         con = context;
+        Util.message("Recieved alarm", con);
         load();
         if(intent.getStringExtra("action")!=null)
             switch (intent.getStringExtra("action")) {
