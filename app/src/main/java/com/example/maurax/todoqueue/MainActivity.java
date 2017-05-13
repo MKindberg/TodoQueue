@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -27,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import static android.os.Build.VERSION_CODES.M;
 
 public class MainActivity extends BasicListActivity {
 
@@ -409,7 +412,7 @@ public class MainActivity extends BasicListActivity {
     void complete() {
         if (tasks.complete()) {
             animate("complete");
-            Snackbar s = Snackbar.make(findViewById(R.id.mainView), "Task completed", Snackbar.LENGTH_SHORT);
+            Snackbar s = Snackbar.make(findViewById(R.id.mainView), "Task completed", Snackbar.LENGTH_LONG);
             s.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
