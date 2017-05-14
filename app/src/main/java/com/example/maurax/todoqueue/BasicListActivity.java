@@ -6,10 +6,9 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.icu.text.DateFormat;
+import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,15 +17,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TimePicker;
 
-import java.sql.Time;
 import java.util.List;
 
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
@@ -41,6 +37,10 @@ public abstract class BasicListActivity extends AppCompatActivity {
 
     PopupMenu popup;
 
+    static ImageView btnNotif;
+    static Drawable notifOn;
+    static Drawable notifOff;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +52,9 @@ public abstract class BasicListActivity extends AppCompatActivity {
         tasks = new Tasks();
         options = new Options();
 
-        final ImageView btnNotif = (ImageView) findViewById(R.id.buttonNotif);
+        btnNotif = (ImageView) findViewById(R.id.buttonNotif);
+        notifOn = getDrawable(R.drawable.ic_notifications_white_24dp);
+        notifOff = getDrawable(R.drawable.ic_notifications_off_white_24dp);
 
 
 
@@ -62,13 +64,16 @@ public abstract class BasicListActivity extends AppCompatActivity {
         readIntent();
         setListeners();
 
-        if (options.notification)
-            btnNotif.setImageDrawable(getDrawable(R.drawable.ic_notifications_white_24dp));
-        else
-            btnNotif.setImageDrawable(getDrawable(R.drawable.ic_notifications_off_white_24dp));
+        setNotif(options.notification);
 
         update();
 
+    }
+    static void setNotif(boolean notif){
+        if (notif)
+            btnNotif.setImageDrawable(notifOn);
+        else
+            btnNotif.setImageDrawable(notifOff);
     }
 
     abstract void setUp();
@@ -106,8 +111,14 @@ public abstract class BasicListActivity extends AppCompatActivity {
                     btnNotif.setImageDrawable(getDrawable(R.drawable.ic_notifications_white_24dp));
                 else
                     btnNotif.setImageDrawable(getDrawable(R.drawable.ic_notifications_off_white_24dp));
+            }
+        });
 
-
+        btnNotif.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showTimeDialog();
+                return true;
             }
         });
     }
@@ -135,28 +146,24 @@ public abstract class BasicListActivity extends AppCompatActivity {
                 calSet.set(Calendar.MINUTE, minute);
                 calSet.set(Calendar.SECOND, 0);
                 calSet.set(Calendar.MILLISECOND, 0);
-                if (hour<hourOfDay || (hour==hourOfDay && minute<=minuteOfDay))
-                    calSet.set(Calendar.HOUR, c.get(Calendar.HOUR-hourOfDay+hour+24));
+                Log.i("Alarm_notif", "setting alarm");
+                if (hour<hourOfDay || (hour==hourOfDay && minute<=minuteOfDay)) {
+                    Log.i("Alarm_notif", "setting tomorrow");
+                    calSet.add(Calendar.HOUR, 24);
+                }
                 setAlarm(calSet);
 
             }
         }, hourOfDay, minuteOfDay, true);
         tp.show();
-        tp.setButton(TimePickerDialog.BUTTON_POSITIVE, "OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        });
     }
 
     void setAlarm(Calendar time){
         Intent alarmIntent = new Intent(BasicListActivity.this, NotificationReciever.class);
-        alarmIntent.putExtra("list", options.list);
+        alarmIntent.setAction("Alarm");
         PendingIntent pi = PendingIntent.getBroadcast(BasicListActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        am.set(AlarmManager.ELAPSED_REALTIME, time.getTimeInMillis(), pi);
-        Util.message("Setting alarm", BasicListActivity.this);
+        am.set(AlarmManager.RTC, time.getTimeInMillis(), pi);
     }
 
     void listDialog(final Context con){
@@ -336,6 +343,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Util.running = false;
         save();
         if (options.notification && tasks.size() != 0)
             NotificationReciever.showNotification(tasks.getFirst().getName(), tasks.getFirst().getDescription(), tasks.getFirst().getColorId(), this);
@@ -344,7 +352,10 @@ public abstract class BasicListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Util.running = true;
         load();
+        Log.i("options", Boolean.toString(options.notification));
+        setNotif(options.notification);
         NotificationReciever.cancelNotification(this);
     }
 }

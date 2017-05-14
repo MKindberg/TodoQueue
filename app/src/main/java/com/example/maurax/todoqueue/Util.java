@@ -28,6 +28,8 @@ class Util {
 
     public static final String ACTION_UPDATE = "UPDATE";
 
+    public static boolean running = false;
+
     public static void updateNotification(Context con){
         Intent i = new Intent(con, NotificationReciever.class);
         i.setAction(ACTION_UPDATE);

@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 
+import java.util.List;
+
 /**
  * Created by marcus on 2016-08-01.
  */
@@ -60,8 +62,15 @@ public class NotificationReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         con = context;
-        Util.message("Recieved alarm", con);
         load();
+        if (intent.getAction()=="Alarm") {
+            options.notification = true;
+            if (Util.running) {
+                Util.saveOptions(options, con);
+                BasicListActivity.setNotif(true);
+                return;
+            }
+        }
         if(intent.getStringExtra("action")!=null)
             switch (intent.getStringExtra("action")) {
                 case "put last":
@@ -90,6 +99,7 @@ public class NotificationReciever extends BroadcastReceiver {
 
     private void save() {
         Util.saveTasks(t, options.list, con);
+        Util.saveOptions(options, con);
         Util.updateWidget(con);
     }
 }
