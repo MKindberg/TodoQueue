@@ -151,7 +151,7 @@ public class ListAllActivity extends BasicListActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
-                return event.getAction() != MotionEvent.ACTION_UP && focused != -1;
+                return false;
             }
         });
 
