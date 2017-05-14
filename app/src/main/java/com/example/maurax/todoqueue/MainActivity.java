@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +17,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -193,220 +195,26 @@ public class MainActivity extends BasicListActivity {
     }
 
     private void edit(){
-        final Task tsk = tasks.getFirst();
-        AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle(getResources().getString(R.string.edit_lbl));
-
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        final EditText inTask = new EditText(this);
-        InputFilter[] filters = new InputFilter[2];
-        filters[0] = new InputFilter.LengthFilter(15);
-        filters[1] = new InputFilter() {
-            @Override
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                boolean keepOriginal = true;
-                StringBuilder sb = new StringBuilder(end - start);
-                for (int i = start; i < end; i++) {
-                    char c = source.charAt(i);
-                    if (isCharAllowed(c))
-                        sb.append(c);
-                    else
-                        keepOriginal = false;
-                }
-                if (keepOriginal)
-                    return null;
-                else {
-                    if (source instanceof Spanned) {
-                        SpannableString sp = new SpannableString(sb);
-                        TextUtils.copySpansFrom((Spanned) source, start, end, null, sp, 0);
-                        return sp;
-                    } else {
-                        return sb;
-                    }
-                }
-            }
-
-            private boolean isCharAllowed(char c) {
-                return c != '\n';
-            }
-        };
-        inTask.setFilters(filters);
-        inTask.setHint(getResources().getString(R.string.name));
-        inTask.setText(tsk.getName());
-        layout.addView(inTask);
-
-        final EditText inDesc = new EditText(this);
-        inDesc.setHint(getResources().getString(R.string.desc));
-        inDesc.setText(tsk.getDescription());
-        layout.addView(inDesc);
-
-        LinearLayout addLin = new LinearLayout(this);
-        TextView prioTitle = new TextView(this);
-        prioTitle.setText("Priority (1 is urgent)");
-        layout.addView(prioTitle);
-        prioTitle.setPadding(20, 20, 20, 20);
-
-        final SeekBar prioBar = new SeekBar(this);
-        prioBar.setMax(4);
-        prioBar.setProgress(tsk.getPriority() - 1);
-
-        final TextView prioTf = new TextView(this);
-        prioTf.setText(Integer.toString(prioBar.getProgress() + 1));
-
-        addLin.addView(prioBar);
-        addLin.addView(prioTf);
-        layout.addView(addLin);
-        prioBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 10));
-        prioTf.setLayoutParams(new LinearLayout.LayoutParams(50, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-
-        prioBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                prioTf.setText((progress + 1) + "");
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-
-        b.setView(layout);
-        b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                tsk.setName(inTask.getText().toString());
-                tsk.setDescription(inDesc.getText().toString());
-                tsk.setPriority(prioBar.getProgress() + 1);
-                update();
-            }
-        });
-        b.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        b.create().show();
+        Task tsk = tasks.getFirst();
+        addDialog(tsk, false);
     }
 
     private void add() {
-        AlertDialog.Builder b = new AlertDialog.Builder(this);
-        b.setTitle(getResources().getString(R.string.add_new_lbl));
+        addDialog(new Task("", "", 3), true);
+    }
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
+    @Override
+    void edited(boolean add, Task t) {
+        if (add){
+            name = t.getName();
+            desc = t.getDescription();
+            prio = t.getPriority();
+            tasks.add(name, desc, prio);
+            animate("add");
 
-
-        final EditText inTask = new EditText(this);
-        inTask.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        InputFilter[] filters = new InputFilter[2];
-        filters[0] = new InputFilter.LengthFilter(15);
-        filters[1] = new InputFilter() {
-            @Override
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                boolean keepOriginal = true;
-                StringBuilder sb = new StringBuilder(end - start);
-                for (int i = start; i < end; i++) {
-                    char c = source.charAt(i);
-                    if (isCharAllowed(c)) // put your condition here
-                        sb.append(c);
-                    else
-                        keepOriginal = false;
-                }
-                if (keepOriginal)
-                    return null;
-                else {
-                    if (source instanceof Spanned) {
-                        SpannableString sp = new SpannableString(sb);
-                        TextUtils.copySpansFrom((Spanned) source, start, end, null, sp, 0);
-                        return sp;
-                    } else {
-                        return sb;
-                    }
-                }
-            }
-
-            private boolean isCharAllowed(char c) {
-                return c != '\n';
-            }
-        };
-        inTask.setFilters(filters);
-        inTask.setHint(getResources().getString(R.string.name));
-        layout.addView(inTask);
-
-        final EditText inDesc = new EditText(this);
-        inDesc.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        inDesc.setSingleLine(false);
-        inDesc.setHint(getResources().getString(R.string.desc));
-        layout.addView(inDesc);
-
-        LinearLayout addLin = new LinearLayout(this);
-        TextView prioTitle = new TextView(this);
-        prioTitle.setText(R.string.title_add_priority);
-        layout.addView(prioTitle);
-        prioTitle.setPadding(20, 20, 20, 20);
-
-        final SeekBar prioBar = new SeekBar(this);
-        prioBar.setMax(4);
-        prioBar.setProgress(2);
-
-        final TextView prioTf = new TextView(this);
-        prioTf.setText(Integer.toString(prioBar.getProgress() + 1));
-
-        addLin.addView(prioBar);
-        addLin.addView(prioTf);
-
-        layout.addView(addLin);
-        prioBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 10));
-        prioTf.setLayoutParams(new LinearLayout.LayoutParams(50, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-
-
-        prioBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                prioTf.setText((progress + 1) + "");
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        b.setView(layout);
-        b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                name = inTask.getText().toString();
-                desc = inDesc.getText().toString();
-                prio = prioBar.getProgress() + 1;
-                tasks.add(name, desc, prio);
-                animate("add");
-            }
-        });
-        b.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        b.create().show();
+        }
+        else
+            update();
     }
 
     void complete() {
@@ -487,7 +295,7 @@ public class MainActivity extends BasicListActivity {
         tvTask.setText(name);
         tvDesc.setText(desc);
         if(prio!=0)
-            tvPrio.setText(getString(R.string.priority) + Integer.toString(prio));
+            tvPrio.setText(getString(R.string.priority) + Task.prioText(prio));
         else
             tvPrio.setText("");
         tvList.setText(options.list);
@@ -500,26 +308,7 @@ public class MainActivity extends BasicListActivity {
         gd.setCornerRadius(5);
         int colId;
         if (options.colors) {
-            switch (prio) {
-                case 1:
-                    colId = R.color.prio1;
-                    break;
-                case 2:
-                    colId = R.color.prio2;
-                    break;
-                case 3:
-                    colId = R.color.prio3;
-                    break;
-                case 4:
-                    colId = R.color.prio4;
-                    break;
-                case 5:
-                    colId = R.color.prio5;
-                    break;
-                default:
-                    colId = R.color.noPrio;
-                    break;
-            }
+                colId=Task.prioColor(prio);
         } else {
             colId = R.color.noPrio;
         }

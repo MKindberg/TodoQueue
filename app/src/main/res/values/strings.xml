@@ -23,7 +23,7 @@
     <string name="lv_cant_down">Can\'t move the last item down</string>
     <string name="lv_cant_up">Can\'t move first item up</string>
     <string name="priority">Priority: </string>
-    <string name="title_add_priority">Priority (1 is urgent)</string>
+    <string name="title_add_priority">Priority: </string>
     <string name="appwidget_text">Task</string>
     <string name="add_widget">Add widget</string>
     <string name="compose_shortcut_short_label1">Add</string>

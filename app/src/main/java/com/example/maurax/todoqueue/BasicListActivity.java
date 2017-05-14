@@ -13,16 +13,26 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.util.List;
 
+import static android.R.id.edit;
 import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
@@ -339,6 +349,120 @@ public abstract class BasicListActivity extends AppCompatActivity {
         //builderSingle.show();
 
     }
+
+    void addDialog(final Task t, final boolean add){
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle(getResources().getString(add?R.string.add_new_lbl:R.string.edit_lbl));
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+
+        final EditText inTask = new EditText(this);
+        inTask.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        InputFilter[] filters = new InputFilter[2];
+        filters[0] = new InputFilter.LengthFilter(15);
+        filters[1] = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                boolean keepOriginal = true;
+                StringBuilder sb = new StringBuilder(end - start);
+                for (int i = start; i < end; i++) {
+                    char c = source.charAt(i);
+                    if (isCharAllowed(c)) // put your condition here
+                        sb.append(c);
+                    else
+                        keepOriginal = false;
+                }
+                if (keepOriginal)
+                    return null;
+                else {
+                    if (source instanceof Spanned) {
+                        SpannableString sp = new SpannableString(sb);
+                        TextUtils.copySpansFrom((Spanned) source, start, end, null, sp, 0);
+                        return sp;
+                    } else {
+                        return sb;
+                    }
+                }
+            }
+
+            private boolean isCharAllowed(char c) {
+                return c != '\n';
+            }
+        };
+        inTask.setFilters(filters);
+        inTask.setHint(getResources().getString(R.string.name));
+        layout.addView(inTask);
+
+        final EditText inDesc = new EditText(this);
+        inDesc.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        inDesc.setSingleLine(false);
+        inDesc.setHint(getResources().getString(R.string.desc));
+        layout.addView(inDesc);
+
+        LinearLayout addLin = new LinearLayout(this);
+        TextView prioTitle = new TextView(this);
+        prioTitle.setText(R.string.title_add_priority);
+
+        prioTitle.setPadding(20, 20, 20, 20);
+
+        final SeekBar prioBar = new SeekBar(this);
+        prioBar.setMax(4);
+        prioBar.setProgress(t.getPriority());
+
+        final TextView prioTf = new TextView(this);
+        prioTf.setText(Task.prioText(prioBar.getProgress() + 1));
+
+        addLin.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        addLin.addView(prioTitle);
+        addLin.addView(prioTf);
+
+        layout.addView(addLin);
+        layout.addView(prioBar);
+
+        inTask.setText(t.getName());
+        inDesc.setText(t.getDescription());
+
+
+        prioBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                prioTf.setText(Task.prioText(progress + 1));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        b.setView(layout);
+        b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                t.setName(inTask.getText().toString());
+                t.setDescription(inDesc.getText().toString());
+                t.setPriority(prioBar.getProgress() + 1);
+                edited(add, t);
+            }
+        });
+        b.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        b.create().show();
+    }
+
+    abstract void edited(boolean add, Task t);
 
     @Override
     protected void onPause() {

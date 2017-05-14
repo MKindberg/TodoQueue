@@ -321,27 +321,7 @@ public class ListAllActivity extends BasicListActivity {
                 View v = lv.getChildAt(i);
                 if(v==null)
                     continue;
-                int colId;
-                switch (aa.getItem(i).getPriority()) {
-                    case 1:
-                        colId = R.color.prio1;
-                        break;
-                    case 2:
-                        colId = R.color.prio2;
-                        break;
-                    case 3:
-                        colId = R.color.prio3;
-                        break;
-                    case 4:
-                        colId = R.color.prio4;
-                        break;
-                    case 5:
-                        colId = R.color.prio5;
-                        break;
-                    default:
-                        colId = R.color.noPrio;
-                        break;
-                }
+                int colId=Task.prioColor(aa.getItem(i).getPriority());
                 v.setBackgroundColor(ContextCompat.getColor(this, colId));
 
             }
@@ -405,112 +385,15 @@ public class ListAllActivity extends BasicListActivity {
 
     private void edit() {
         if (focused != -1) {
-            final Task tsk = tasks.get(focused);
-            AlertDialog.Builder b = new AlertDialog.Builder(this);
-            b.setTitle(getResources().getString(R.string.edit_lbl));
-
-            LinearLayout layout = new LinearLayout(this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-
-            final EditText inTask = new EditText(this);
-            InputFilter[] filters = new InputFilter[2];
-            filters[0] = new InputFilter.LengthFilter(15);
-            filters[1] = new InputFilter() {
-                @Override
-                public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                    boolean keepOriginal = true;
-                    StringBuilder sb = new StringBuilder(end - start);
-                    for (int i = start; i < end; i++) {
-                        char c = source.charAt(i);
-                        if (isCharAllowed(c)) // put your condition here
-                            sb.append(c);
-                        else
-                            keepOriginal = false;
-                    }
-                    if (keepOriginal)
-                        return null;
-                    else {
-                        if (source instanceof Spanned) {
-                            SpannableString sp = new SpannableString(sb);
-                            TextUtils.copySpansFrom((Spanned) source, start, end, null, sp, 0);
-                            return sp;
-                        } else {
-                            return sb;
-                        }
-                    }
-                }
-
-                private boolean isCharAllowed(char c) {
-                    return c != '\n';
-                }
-            };
-            inTask.setFilters(filters);
-            inTask.setHint(getResources().getString(R.string.name));
-            inTask.setText(tsk.getName());
-            layout.addView(inTask);
-
-            final EditText inDesc = new EditText(this);
-            inDesc.setHint(getResources().getString(R.string.desc));
-            inDesc.setText(tsk.getDescription());
-            layout.addView(inDesc);
-
-            LinearLayout addLin = new LinearLayout(this);
-            TextView prioTitle = new TextView(this);
-            prioTitle.setText("Priority (1 is urgent)");
-            layout.addView(prioTitle);
-            prioTitle.setPadding(20, 20, 20, 20);
-
-            final SeekBar prioBar = new SeekBar(this);
-            prioBar.setMax(4);
-            prioBar.setProgress(tsk.getPriority() - 1);
-
-            final TextView prioTf = new TextView(this);
-            prioTf.setText(Integer.toString(prioBar.getProgress() + 1));
-
-            addLin.addView(prioBar);
-            addLin.addView(prioTf);
-            layout.addView(addLin);
-            prioBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 10));
-            prioTf.setLayoutParams(new LinearLayout.LayoutParams(50, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-
-            prioBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    prioTf.setText((progress + 1) + "");
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
-            });
-
-
-            b.setView(layout);
-            b.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    tsk.setName(inTask.getText().toString());
-                    tsk.setDescription(inDesc.getText().toString());
-                    tsk.setPriority(prioBar.getProgress() + 1);
-                    update();
-                }
-            });
-            b.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-
-            b.create().show();
+            Task tsk = tasks.get(focused);
+            addDialog(tsk, false);
         } else
             Util.message(getResources().getString(R.string.lv_please_select), this);
+    }
+
+    @Override
+    void edited(boolean add, Task t) {
+        update();
     }
 
     private void back() {

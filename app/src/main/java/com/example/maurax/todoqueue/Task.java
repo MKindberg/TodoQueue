@@ -72,8 +72,21 @@ public class Task implements Parcelable, Comparable<Task> {
     }
 
     public int getPriority() {
-
         return priority;
+    }
+    public static String prioText(int prio){
+        switch (prio){
+            case 5:
+                return "Urgent";
+            case 4:
+                return "High";
+            case 3:
+                return "Medium";
+            case 2:
+                return "Low";
+            default:
+                return "None";
+        }
     }
 
     /**
@@ -81,23 +94,29 @@ public class Task implements Parcelable, Comparable<Task> {
      * @return The color of the tasks priority
      */
     public int getColorId() {
+        return prioColor(priority);
+    }
+
+    public static int prioColor(int prio) {
         int colId=0;
-        switch(priority){
-            case 1:
-                colId = R.color.prio1;
-                break;
-            case 2:
-                colId = R.color.prio2;
-                break;
-            case 3:
-                colId = R.color.prio3;
+        switch(prio){
+            case 5:
+                colId = R.color.prioUrgent;
                 break;
             case 4:
-                colId = R.color.prio4;
+                colId = R.color.prioHigh;
                 break;
-            case 5:
-                colId = R.color.prio5;
+            case 3:
+                colId = R.color.prioMedium;
                 break;
+            case 2:
+                colId = R.color.prioLow;
+                break;
+            case 1:
+                colId = R.color.prioNone;
+                break;
+            default:
+                colId = R.color.noPrio;
         }
         return colId;
     }
@@ -126,6 +145,6 @@ public class Task implements Parcelable, Comparable<Task> {
 
     @Override
     public int compareTo(@NonNull Task another) {
-        return Integer.compare(priority, another.getPriority());
+        return -Integer.compare(priority, another.getPriority());
     }
 }
