@@ -11,6 +11,8 @@ import android.support.v7.app.NotificationCompat;
 
 import java.util.List;
 
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
+
 /**
  * Created by marcus on 2016-08-01.
  */
@@ -67,7 +69,6 @@ public class NotificationReciever extends BroadcastReceiver {
             options.notification = true;
             if (Util.running) {
                 Util.saveOptions(options, con);
-                BasicListActivity.setNotif(true);
                 return;
             }
         }

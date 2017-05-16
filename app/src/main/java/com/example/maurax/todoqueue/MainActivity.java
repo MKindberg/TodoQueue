@@ -200,7 +200,7 @@ public class MainActivity extends BasicListActivity {
     }
 
     private void add() {
-        addDialog(new Task("", "", 3), true);
+        addDialog(new Task("", "", 2), true);
     }
 
     @Override
@@ -266,7 +266,7 @@ public class MainActivity extends BasicListActivity {
         if (task != null) {
             update(task.getName(), task.getDescription(), task.getPriority(), card);
         } else {
-            update(getString(R.string.empty), getString(R.string.please_add), 0, card);
+            update(getString(R.string.empty), getString(R.string.please_add),-1, card);
         }
     }
 
@@ -294,8 +294,8 @@ public class MainActivity extends BasicListActivity {
         assert tvList != null;
         tvTask.setText(name);
         tvDesc.setText(desc);
-        if(prio!=0)
-            tvPrio.setText(getString(R.string.priority) + Task.prioText(prio));
+        if(prio!=-1)
+            tvPrio.setText(getString(R.string.priority) +" "+ Task.prioText(prio));
         else
             tvPrio.setText("");
         tvList.setText(options.list);
@@ -312,7 +312,7 @@ public class MainActivity extends BasicListActivity {
         } else {
             colId = R.color.noPrio;
         }
-        if(prio==0)
+        if(prio==-1)
             colId=R.color.light_grey;
         gd.setColor(ContextCompat.getColor(this, colId));
         tg.setBackground(gd);

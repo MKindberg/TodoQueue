@@ -1,5 +1,6 @@
 package com.example.maurax.todoqueue;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -47,9 +48,9 @@ public abstract class BasicListActivity extends AppCompatActivity {
 
     PopupMenu popup;
 
-    static ImageView btnNotif;
-    static Drawable notifOn;
-    static Drawable notifOff;
+    ImageView btnNotif;
+    Drawable notifOn;
+    Drawable notifOff;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,8 +67,6 @@ public abstract class BasicListActivity extends AppCompatActivity {
         notifOn = getDrawable(R.drawable.ic_notifications_white_24dp);
         notifOff = getDrawable(R.drawable.ic_notifications_off_white_24dp);
 
-
-
         setUp();
         findViews();
         createMenu();
@@ -79,7 +78,8 @@ public abstract class BasicListActivity extends AppCompatActivity {
         update();
 
     }
-    static void setNotif(boolean notif){
+
+    void setNotif(boolean notif){
         if (notif)
             btnNotif.setImageDrawable(notifOn);
         else
@@ -187,7 +187,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final String strName = arrayAdapter.getItem(which);
-                if(strName.equals("Add new")){
+                if("Add new".equals(strName)){
                     AlertDialog.Builder builderInner = new AlertDialog.Builder(con);
                     builderInner.setTitle("New list name:");
 
@@ -412,7 +412,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
         prioBar.setProgress(t.getPriority());
 
         final TextView prioTf = new TextView(this);
-        prioTf.setText(Task.prioText(prioBar.getProgress() + 1));
+        prioTf.setText(Task.prioText(prioBar.getProgress()));
 
         addLin.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         addLin.addView(prioTitle);
@@ -428,7 +428,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
         prioBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                prioTf.setText(Task.prioText(progress + 1));
+                prioTf.setText(Task.prioText(progress));
             }
 
             @Override
@@ -448,7 +448,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 t.setName(inTask.getText().toString());
                 t.setDescription(inDesc.getText().toString());
-                t.setPriority(prioBar.getProgress() + 1);
+                t.setPriority(prioBar.getProgress());
                 edited(add, t);
             }
         });

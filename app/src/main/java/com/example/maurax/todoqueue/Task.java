@@ -76,13 +76,13 @@ public class Task implements Parcelable, Comparable<Task> {
     }
     public static String prioText(int prio){
         switch (prio){
-            case 5:
-                return "Urgent";
             case 4:
-                return "High";
+                return "Urgent";
             case 3:
-                return "Medium";
+                return "High";
             case 2:
+                return "Medium";
+            case 1:
                 return "Low";
             default:
                 return "None";
@@ -100,19 +100,19 @@ public class Task implements Parcelable, Comparable<Task> {
     public static int prioColor(int prio) {
         int colId=0;
         switch(prio){
-            case 5:
+            case 4:
                 colId = R.color.prioUrgent;
                 break;
-            case 4:
+            case 3:
                 colId = R.color.prioHigh;
                 break;
-            case 3:
+            case 2:
                 colId = R.color.prioMedium;
                 break;
-            case 2:
+            case 1:
                 colId = R.color.prioLow;
                 break;
-            case 1:
+            case 0:
                 colId = R.color.prioNone;
                 break;
             default:
