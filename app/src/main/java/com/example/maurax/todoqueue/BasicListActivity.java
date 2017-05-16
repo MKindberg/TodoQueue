@@ -350,8 +350,15 @@ public abstract class BasicListActivity extends AppCompatActivity {
 
     }
 
+    boolean edit = false;
     void addDialog(final Task t, final boolean add){
         AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                edit = false;
+            }
+        });
         b.setTitle(getResources().getString(add?R.string.add_new_lbl:R.string.edit_lbl));
 
         LinearLayout layout = new LinearLayout(this);

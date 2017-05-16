@@ -31,6 +31,8 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
+import static android.R.id.edit;
+
 public class ListAllActivity extends BasicListActivity {
 
     private ListView lv;
@@ -41,14 +43,6 @@ public class ListAllActivity extends BasicListActivity {
     private float x1;
     private float y1;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-
-
-    }
 
     void findViews(){
 
@@ -105,7 +99,7 @@ public class ListAllActivity extends BasicListActivity {
                 complete();
             }
         });
-        View filler = findViewById(R.id.filler);
+        final View filler = findViewById(R.id.filler);
         final RelativeLayout relLay = (RelativeLayout) findViewById(R.id.relLay2);
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -128,7 +122,6 @@ public class ListAllActivity extends BasicListActivity {
 
 
         });
-
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -146,12 +139,20 @@ public class ListAllActivity extends BasicListActivity {
                     back();
                     return super.onDoubleTap(e);
                 }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    super.onLongPress(e);
+                    if (focused!=-1)
+                        edit();
+
+                }
             });
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 gestureDetector.onTouchEvent(event);
-                return false;
+                return event.getAction() != MotionEvent.ACTION_UP && focused != -1;
             }
         });
 
@@ -384,11 +385,15 @@ public class ListAllActivity extends BasicListActivity {
     }
 
     private void edit() {
+        if(edit)
+            return;
+        edit = true;
         if (focused != -1) {
             Task tsk = tasks.get(focused);
             addDialog(tsk, false);
         } else
             Util.message(getResources().getString(R.string.lv_please_select), this);
+
     }
 
     @Override
