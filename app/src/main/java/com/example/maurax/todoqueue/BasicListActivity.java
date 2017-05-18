@@ -1,6 +1,5 @@
 package com.example.maurax.todoqueue;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -33,7 +32,6 @@ import android.widget.TimePicker;
 
 import java.util.List;
 
-import static android.R.id.edit;
 import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
@@ -94,7 +92,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
     void createMenu() {
         popup = new PopupMenu(this, findViewById(R.id.buttonMenu));
         popup.getMenuInflater().inflate(R.menu.menu_list, popup.getMenu());
-        popup.getMenu().findItem(R.id.colorsOp).setChecked(options.colors);
+        popup.getMenu().findItem(R.id.menu_item_colors).setChecked(options.colors);
     }
     void setListeners(){
         findViewById(R.id.ListText).setOnClickListener(new View.OnClickListener() {
@@ -141,6 +139,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
     }
     public abstract void load();
 
+    abstract void shareData();
 
     void showTimeDialog(){
         final Calendar c = Calendar.getInstance();
@@ -156,12 +155,13 @@ public abstract class BasicListActivity extends AppCompatActivity {
                 calSet.set(Calendar.MINUTE, minute);
                 calSet.set(Calendar.SECOND, 0);
                 calSet.set(Calendar.MILLISECOND, 0);
-                Log.i("Alarm_notif", "setting alarm");
+                String alarmMessage = "Alarm set for "+calSet.get(Calendar.HOUR_OF_DAY)+":"+calSet.get(Calendar.MINUTE);
                 if (hour<hourOfDay || (hour==hourOfDay && minute<=minuteOfDay)) {
-                    Log.i("Alarm_notif", "setting tomorrow");
                     calSet.add(Calendar.HOUR, 24);
+                    alarmMessage+=" tomorrow";
                 }
                 setAlarm(calSet);
+                message(alarmMessage, BasicListActivity.this);
 
             }
         }, hourOfDay, minuteOfDay, true);

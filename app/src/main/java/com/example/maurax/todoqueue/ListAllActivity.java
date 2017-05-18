@@ -1,37 +1,21 @@
 package com.example.maurax.todoqueue;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
-import android.text.InputFilter;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
-
-import java.io.File;
-import java.io.IOException;
-
-import static android.R.id.edit;
 
 public class ListAllActivity extends BasicListActivity {
 
@@ -208,10 +192,10 @@ public class ListAllActivity extends BasicListActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.tutorialOp:
+                    case R.id.menu_item_tutorial:
                         tutorial();
                         return true;
-                    case R.id.sortOp:
+                    case R.id.menu_item_sort:
                         System.out.println("Sorting");
                         Task tsk = null;
                         if (focused != -1) {
@@ -230,20 +214,38 @@ public class ListAllActivity extends BasicListActivity {
                             setFocus(focused, true);
                         }
                         return true;
-                    case R.id.colorsOp:
+                    case R.id.menu_item_colors:
                         item.setChecked(!item.isChecked());
                         options.colors = item.isChecked();
                         color();
                         popup.show();
                         return true;
-                    case R.id.listOp:
+                    case R.id.menu_item_lists:
                         listDialog(ListAllActivity.this);
+                        return true;
+                    case R.id.menu_item_share:
+                        shareData();
                         return true;
                     default:
                         return false;
                 }
             }
         });
+
+    }
+
+    @Override
+    void shareData() {
+        if (focused==-1){
+            Util.message("Please select a task to share", this);
+            return;
+        }
+        Task task = tasks.get(focused);
+        Intent i = new Intent(android.content.Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(android.content.Intent.EXTRA_SUBJECT, task.getName());
+        i.putExtra(android.content.Intent.EXTRA_TEXT, task.getDescription());
+        startActivity(Intent.createChooser(i, "Share via"));
 
     }
 

@@ -46,8 +46,10 @@ public class AddPopup extends Activity {
         inLists.setAdapter(aa);
         inLists.setSelection(aa.getPosition(options.list));
 
-        if (Intent.ACTION_SEND.equals(action))
+        if (Intent.ACTION_SEND.equals(action)) {
+            inTask.setText(i.getStringExtra(Intent.EXTRA_SUBJECT));
             inDesc.setText(i.getStringExtra(Intent.EXTRA_TEXT));
+        }
 
     }
 
