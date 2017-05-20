@@ -107,6 +107,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
                 tasks.sort();
                 update();
                 Util.message("Sorted", BasicListActivity.this);
+                sorted();
             }
         });
 
@@ -131,13 +132,21 @@ public abstract class BasicListActivity extends AppCompatActivity {
         });
     }
 
+    protected abstract void sorted();
+
     public abstract void update();
     public void save() {
         Util.saveTasks(tasks, options.list, this);
         Util.saveOptions(options, this);
         Util.updateWidget(this);
     }
-    public abstract void load();
+    public void load() {
+        options = Util.loadOptions(this);
+        tasks = Util.loadTasks(options.list, this);
+        Task.loadPrioNames(this);
+        update();
+
+    }
 
     abstract void shareData();
 
@@ -457,6 +466,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
                 t.setDescription(inDesc.getText().toString());
                 t.setPriority(prioBar.getProgress());
                 edited(add, t);
+                edit = false;
             }
         });
         b.setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {

@@ -387,14 +387,6 @@ public class MainActivity extends BasicListActivity {
 
     }
 
-    public void load() {
-        options = Util.loadOptions(this);
-        tasks = Util.loadTasks(options.list, this);
-
-        popup.getMenu().findItem(R.id.menu_item_colors).setChecked(options.colors);
-
-        update(FRONT);
-    }
 
     public void menu(View v) {
         popup.show();
@@ -420,6 +412,10 @@ public class MainActivity extends BasicListActivity {
                     case R.id.menu_item_lists:
                         listDialog(MainActivity.this);
                         return true;
+                    case R.id.menu_item_settings:
+                        Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(i);
+                        return true;
                     case R.id.menu_item_share:
                         shareData();
 
@@ -428,6 +424,11 @@ public class MainActivity extends BasicListActivity {
                 }
             }
         });
+
+    }
+
+    @Override
+    protected void sorted() {
 
     }
 

@@ -1,7 +1,11 @@
 package com.example.maurax.todoqueue;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 public class Task implements Parcelable, Comparable<Task> {
@@ -19,6 +23,12 @@ public class Task implements Parcelable, Comparable<Task> {
     private String name;
     private String description;
     private int priority;
+
+    private static String prio0 = "None";
+    private static String prio1 = "Low";
+    private static String prio2 = "Medium";
+    private static String prio3 = "High";
+    private static String prio4 = "Urgent";
 
     public Task(String name) {
         this.name = name;
@@ -77,16 +87,25 @@ public class Task implements Parcelable, Comparable<Task> {
     public static String prioText(int prio){
         switch (prio){
             case 4:
-                return "Urgent";
+                return prio4;
             case 3:
-                return "High";
+                return prio3;
             case 2:
-                return "Medium";
+                return prio2;
             case 1:
-                return "Low";
+                return prio1;
             default:
-                return "None";
+                return prio0;
         }
+    }
+
+    public static void loadPrioNames(Context con){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(con);
+        prio0 = prefs.getString("settings_prio_0", "None");
+        prio1 = prefs.getString("settings_prio_1", "Low");
+        prio2 = prefs.getString("settings_prio_2", "Medium");
+        prio3 = prefs.getString("settings_prio_3", "High");
+        prio4 = prefs.getString("settings_prio_4", "Urgent");
     }
 
     /**

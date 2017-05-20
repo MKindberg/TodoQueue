@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
+
 public class ListAllActivity extends BasicListActivity {
 
     private ListView lv;
@@ -203,6 +205,7 @@ public class ListAllActivity extends BasicListActivity {
                         }
                         //tasks = new Tasks(l);
                         tasks.sort();
+                        sorted();
                         update();
                         if (focused != -1) {
                             setFocus(focused, false);
@@ -223,6 +226,10 @@ public class ListAllActivity extends BasicListActivity {
                     case R.id.menu_item_lists:
                         listDialog(ListAllActivity.this);
                         return true;
+                    case R.id.menu_item_settings:
+                        Intent i = new Intent(ListAllActivity.this, SettingsActivity.class);
+                        startActivity(i);
+                        return true;
                     case R.id.menu_item_share:
                         shareData();
                         return true;
@@ -232,6 +239,12 @@ public class ListAllActivity extends BasicListActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void sorted() {
+        setFocus(focused, false);
+        focused=-1;
     }
 
     @Override
@@ -285,6 +298,7 @@ public class ListAllActivity extends BasicListActivity {
     }
 
     private void setFocus(int pos, boolean focus) {
+
         if(pos == 0)
             lv.setSelectionAfterHeaderView();
         else if(pos<=lv.getFirstVisiblePosition())
@@ -320,8 +334,9 @@ public class ListAllActivity extends BasicListActivity {
 
     private void color() {
         if (options.colors) {
-            for (int i = 0; i < aa.getCount(); i++) {
-                View v = lv.getChildAt(i);
+            int f = lv.getFirstVisiblePosition()==0?lv.getFirstVisiblePosition():lv.getFirstVisiblePosition();
+            for (int i = f; i < lv.getLastVisiblePosition()+1; i++) {
+                View v = lv.getChildAt(i-f);
                 if(v==null)
                     continue;
                 int colId=Task.prioColor(aa.getItem(i).getPriority());
@@ -347,7 +362,7 @@ public class ListAllActivity extends BasicListActivity {
             tasks.moveUp(focused);
             focused--;
             update();
-            //setFocus(focused, true);
+            setFocus(focused, true);
         } else if (focused == -1)
             Util.message(getResources().getString(R.string.lv_please_select), this);
         else
@@ -360,7 +375,7 @@ public class ListAllActivity extends BasicListActivity {
             setFocus(focused, false);
             focused++;
             update();
-            //setFocus(focused, true);
+            setFocus(focused, true);
         } else if (focused == -1)
             Util.message(getResources().getString(R.string.lv_please_select), this);
         else
@@ -369,6 +384,7 @@ public class ListAllActivity extends BasicListActivity {
 
     void complete() {
         if (focused != -1) {
+            Task t = tasks.get(focused);
             tasks.complete(focused);
             setFocus(focused, false);
             focused = -1;
@@ -417,7 +433,7 @@ public class ListAllActivity extends BasicListActivity {
         aa.setData(tasks.getAll());
         aa.notifyDataSetChanged();
         lv.invalidateViews();
-        color();
+        //color();
         TextView tvList = (TextView) findViewById(R.id.ListText);
         tvList.setText(options.list);
     }
@@ -446,13 +462,6 @@ public class ListAllActivity extends BasicListActivity {
         });
         b.setCancelable(true);
         b.create().show();*/
-    }
-
-
-
-    public void load() {
-        options = Util.loadOptions(this);
-        tasks = Util.loadTasks(options.list, this);
     }
 
 
