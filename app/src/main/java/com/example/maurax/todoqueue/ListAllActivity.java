@@ -389,7 +389,7 @@ public class ListAllActivity extends BasicListActivity {
             setFocus(focused, false);
             focused = -1;
             update();
-            Snackbar s = Snackbar.make(findViewById(R.id.listView), "Task completed", Snackbar.LENGTH_LONG);
+            Snackbar s = Snackbar.make(findViewById(R.id.outerLayout), "Task completed", Snackbar.LENGTH_LONG);
             s.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

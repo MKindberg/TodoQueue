@@ -203,7 +203,7 @@ public class MainActivity extends BasicListActivity {
     void complete() {
         if (tasks.complete()) {
             animate("complete");
-            Snackbar s = Snackbar.make(findViewById(R.id.mainView), "Task completed", Snackbar.LENGTH_LONG);
+            Snackbar s = Snackbar.make(findViewById(R.id.outerLayout), "Task completed", Snackbar.LENGTH_LONG);
             s.setAction("Undo", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
