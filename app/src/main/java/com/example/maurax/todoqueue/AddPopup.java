@@ -42,14 +42,13 @@ public class AddPopup extends Activity {
         t = Util.loadTasks(options.list, this);
         List<String> lists = Util.loadLists(this);
 
-        ArrayAdapter<String> aa = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lists);
+        ArrayAdapter<String> aa = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, lists);
+        aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         inLists.setAdapter(aa);
         inLists.setSelection(aa.getPosition(options.list));
 
-        if (Intent.ACTION_SEND.equals(action)) {
-            inTask.setText(i.getStringExtra(Intent.EXTRA_SUBJECT));
-            inDesc.setText(i.getStringExtra(Intent.EXTRA_TEXT));
-        }
+        inTask.setText(i.getStringExtra(Intent.EXTRA_SUBJECT));
+        inDesc.setText(i.getStringExtra(Intent.EXTRA_TEXT));
 
     }
 
