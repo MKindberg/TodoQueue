@@ -4,7 +4,7 @@
 
     <header
         android:fragment="com.example.maurax.todoqueue.SettingsActivity$EditPrioPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
+        android:icon="@drawable/ic_label_black_24dp"
         android:title="@string/pref_header_edit_prio" />
 
 

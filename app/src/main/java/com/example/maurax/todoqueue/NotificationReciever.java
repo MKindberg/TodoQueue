@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 
@@ -22,7 +24,9 @@ public class NotificationReciever extends BroadcastReceiver {
     private Context con;
     private Options options;
 
-    public static void showNotification(String name, String desc, int colorId, Context con) {
+    public static String NOTIFICATION_LIST = "List";
+
+    public static void showNotification(String name, String desc, int colorId, Context con, String list) {
         NotificationCompat.Builder nBuild = new NotificationCompat.Builder(con);
         nBuild.setContentTitle(name);
         nBuild.setContentText(desc);
@@ -31,6 +35,7 @@ public class NotificationReciever extends BroadcastReceiver {
         nBuild.setLargeIcon(BitmapFactory.decodeResource(con.getResources(), R.mipmap.ic_launcher));
 
         Intent resInt = new Intent(con, MainActivity.class);
+        resInt.putExtra(NOTIFICATION_LIST, list);
         PendingIntent pInt = PendingIntent.getActivity(con, 0, resInt, PendingIntent.FLAG_UPDATE_CURRENT);
         nBuild.setContentIntent(pInt);
 
@@ -42,6 +47,9 @@ public class NotificationReciever extends BroadcastReceiver {
         intentPostpone.putExtra("action", "postpone");
         intentPutLast.putExtra("action", "put last");
         intentComplete.putExtra("action", "complete");
+        intentPostpone.putExtra(NOTIFICATION_LIST, list);
+        intentPutLast.putExtra(NOTIFICATION_LIST, list);
+        intentComplete.putExtra(NOTIFICATION_LIST, list);
 
         PendingIntent pendingPostpone = PendingIntent.getBroadcast(con, 1, intentPostpone, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent pendingPutLast = PendingIntent.getBroadcast(con, 2, intentPutLast, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -64,9 +72,14 @@ public class NotificationReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         con = context;
-        load();
+        String list = intent.getStringExtra(NOTIFICATION_LIST);
+        load(list);
         if (intent.getAction()=="Alarm") {
             options.notification = true;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(con);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("Alarm", null);
+            editor.apply();
             if (Util.running) {
                 Util.saveOptions(options, con);
                 return;
@@ -86,20 +99,21 @@ public class NotificationReciever extends BroadcastReceiver {
             }
         Task tsk = t.getFirst();
         if (tsk != null) {
-            showNotification(tsk.getName(), tsk.getDescription().replace("\n", "  //  "), tsk.getColorId(), con);
+            showNotification(tsk.getName(), tsk.getDescription().replace("\n", "  //  "), tsk.getColorId(), con, list);
         } else
             cancelNotification(con);
 
-        save();
+        save(list);
     }
 
-    private void load() {
+    private void load(String list) {
         options = Util.loadOptions(con);
-        t = Util.loadTasks(options.list, con);
+        t = Util.loadTasks(list!=null?list:options.list, con);
     }
 
-    private void save() {
-        Util.saveTasks(t, options.list, con);
+
+    private void save(String list) {
+        Util.saveTasks(t, list!=null?list:options.list, con);
         Util.saveOptions(options, con);
         Util.updateWidget(con);
     }

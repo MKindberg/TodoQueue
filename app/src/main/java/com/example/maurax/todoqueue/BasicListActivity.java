@@ -1,14 +1,18 @@
 package com.example.maurax.todoqueue;
 
 import android.app.AlarmManager;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -30,8 +34,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
+import static android.os.Build.VERSION_CODES.M;
 import static com.example.maurax.todoqueue.Util.message;
 import static com.example.maurax.todoqueue.Util.saveOptions;
 
@@ -61,6 +68,8 @@ public abstract class BasicListActivity extends AppCompatActivity {
         tasks = new Tasks();
         options = new Options();
 
+
+
         btnNotif = (ImageView) findViewById(R.id.buttonNotif);
         notifOn = getDrawable(R.drawable.ic_notifications_white_24dp);
         notifOff = getDrawable(R.drawable.ic_notifications_off_white_24dp);
@@ -72,6 +81,12 @@ public abstract class BasicListActivity extends AppCompatActivity {
         setListeners();
 
         setNotif(options.notification);
+
+        Intent i = getIntent();
+        if (i.getStringExtra(NotificationReciever.NOTIFICATION_LIST)!=null){
+            options.list = i.getStringExtra(NotificationReciever.NOTIFICATION_LIST);
+            saveOptions(options, this);
+        }
 
         update();
 
@@ -150,12 +165,14 @@ public abstract class BasicListActivity extends AppCompatActivity {
 
     abstract void shareData();
 
+    private String padTime(int time){
+        String t = Integer.toString(time);
+        return t.length()==1?"0"+t:t;
+    }
     void showTimeDialog(){
         final Calendar c = Calendar.getInstance();
         final int hourOfDay = c.get(Calendar.HOUR_OF_DAY);
         final int minuteOfDay = c.get(Calendar.MINUTE);
-        AlertDialog.Builder builderTime = new AlertDialog.Builder(this);
-        builderTime.setTitle("Select a time");
         TimePickerDialog tp = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hour, int minute) {
@@ -164,25 +181,93 @@ public abstract class BasicListActivity extends AppCompatActivity {
                 calSet.set(Calendar.MINUTE, minute);
                 calSet.set(Calendar.SECOND, 0);
                 calSet.set(Calendar.MILLISECOND, 0);
-                String alarmMessage = "Alarm set for "+calSet.get(Calendar.HOUR_OF_DAY)+":"+calSet.get(Calendar.MINUTE);
+                String alarmMessage = "Alarm set for "+padTime(calSet.get(Calendar.HOUR_OF_DAY))+":"+padTime(calSet.get(Calendar.MINUTE));
                 if (hour<hourOfDay || (hour==hourOfDay && minute<=minuteOfDay)) {
                     calSet.add(Calendar.HOUR, 24);
                     alarmMessage+=" tomorrow";
                 }
-                setAlarm(calSet);
-                message(alarmMessage, BasicListActivity.this);
-
+                alarmLists(calSet, alarmMessage);
             }
         }, hourOfDay, minuteOfDay, true);
+
+        tp.setMessage("Set new alarm");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String currentAlarm = prefs.getString("Alarm", null);
+
+        if (currentAlarm!=null){
+            String setMessage = "Edit existing alarm for " + currentAlarm;
+            tp.setMessage(setMessage);
+
+
+            tp.setButton(DialogInterface.BUTTON_NEUTRAL, "Remove", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    setAlarm(null, "Alarm removed", null);
+                }
+            });
+        }
+
         tp.show();
     }
 
-    void setAlarm(Calendar time){
+    static int chosen;
+    void alarmLists(final Calendar c, final String m){
+        final AlertDialog.Builder builderLists = new AlertDialog.Builder(this);
+        builderLists.setTitle("Do you want the notification to show a specific list?");
+        final List<String> lists = Util.loadLists(this);
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice, lists);
+        chosen = arrayAdapter.getPosition(options.list);
+        builderLists.setSingleChoiceItems(arrayAdapter, arrayAdapter.getPosition(options.list), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                chosen = which;
+            }
+        });
+        builderLists.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String list = lists.get(chosen);
+                setAlarm(c, m, list);
+            }
+        });
+        builderLists.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setAlarm(c, m, null);
+            }
+        });
+        builderLists.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builderLists.show();
+    }
+
+    void setAlarm(Calendar time, String message, String list){
         Intent alarmIntent = new Intent(BasicListActivity.this, NotificationReciever.class);
         alarmIntent.setAction("Alarm");
+        alarmIntent.putExtra(NotificationReciever.NOTIFICATION_LIST, list);
         PendingIntent pi = PendingIntent.getBroadcast(BasicListActivity.this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        am.set(AlarmManager.RTC, time.getTimeInMillis(), pi);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        if(time!=null) {
+            am.cancel(pi);
+            am.set(AlarmManager.RTC, time.getTimeInMillis(), pi);
+            Util.message(message, this);
+            editor.putString("AlarmList", list);
+            editor.putString("Alarm", time.get(Calendar.HOUR_OF_DAY)+":"+time.get(Calendar.MINUTE));
+
+        } else if (prefs.getString("Alarm", null)!=null) {
+            am.cancel(pi);
+            Util.message(message, this);
+            editor.putString("Alarm", null);
+        }
+        editor.apply();
     }
 
     void listDialog(final Context con){
@@ -487,7 +572,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
         Util.running = false;
         save();
         if (options.notification && tasks.size() != 0)
-            NotificationReciever.showNotification(tasks.getFirst().getName(), tasks.getFirst().getDescription(), tasks.getFirst().getColorId(), this);
+            NotificationReciever.showNotification(tasks.getFirst().getName(), tasks.getFirst().getDescription(), tasks.getFirst().getColorId(), this, null);
     }
 
     @Override
