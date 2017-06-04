@@ -105,8 +105,10 @@ public class NotificationReciever extends BroadcastReceiver {
         Task tsk = t.getFirst();
         if (tsk != null) {
             showNotification(tsk.getName(), tsk.getDescription().replace("\n", "  //  "), tsk.getColorId(), con, list);
-        } else
+        } else {
             cancelNotification(con);
+            options.notification = false;
+        }
 
         save(list);
     }
