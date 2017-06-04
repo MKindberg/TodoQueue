@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
@@ -83,6 +84,10 @@ public class NotificationReciever extends BroadcastReceiver {
             if (Util.running) {
                 Util.saveOptions(options, con);
                 return;
+            }
+            if(prefs.getBoolean("settings_vibrate", false)){
+                Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                vibrator.vibrate(300);
             }
         }
         if(intent.getStringExtra("action")!=null)
