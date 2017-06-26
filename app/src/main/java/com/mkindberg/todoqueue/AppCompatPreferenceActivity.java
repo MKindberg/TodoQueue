@@ -1,4 +1,4 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

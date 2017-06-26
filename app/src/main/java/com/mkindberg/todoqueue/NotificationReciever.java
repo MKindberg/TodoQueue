@@ -1,4 +1,4 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,10 +11,6 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
-
-import java.util.List;
-
-import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 
 /**
  * Created by marcus on 2016-08-01.

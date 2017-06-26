@@ -1,4 +1,4 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import org.junit.Test;
 

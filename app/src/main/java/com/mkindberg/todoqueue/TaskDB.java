@@ -1,20 +1,13 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.UrlQuerySanitizer;
-import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import static android.R.attr.version;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-import static android.os.Build.VERSION_CODES.M;
-import static android.os.FileObserver.CREATE;
 
 /**
  * Created by marcus on 30/04/2017.

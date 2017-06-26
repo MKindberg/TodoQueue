@@ -1,4 +1,4 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -16,8 +16,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 
 public class ListAllActivity extends BasicListActivity {
 

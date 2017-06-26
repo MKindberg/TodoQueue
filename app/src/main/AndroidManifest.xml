@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.maurax.todoqueue">
+    package="com.mkindberg.todoqueue">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE"/>
 
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.mkindberg.todoqueue.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -26,8 +26,8 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
-        <receiver android:name=".NotificationReciever" />
-        <receiver android:name=".BootReciever">
+        <receiver android:name="com.mkindberg.todoqueue.NotificationReciever" />
+        <receiver android:name="com.mkindberg.todoqueue.BootReciever">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -41,11 +41,11 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".ListAllActivity"
+            android:name="com.mkindberg.todoqueue.ListAllActivity"
             android:label="@string/title_activity_list_all"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".AddPopup"
+            android:name="com.mkindberg.todoqueue.AddPopup"
             android:autoRemoveFromRecents="true"
             android:configChanges="orientation|screenSize"
             android:label="AddPopup"
@@ -60,7 +60,7 @@
         </activity>
 
         <receiver
-            android:name=".SimpleBackAppWidget"
+            android:name="com.mkindberg.todoqueue.SimpleBackAppWidget"
             android:label="Simple Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -72,7 +72,7 @@
         </receiver>
 
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.mkindberg.todoqueue.SettingsActivity"
             android:label="@string/title_activity_settings"></activity>
     </application>
 

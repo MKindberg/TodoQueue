@@ -1,7 +1,6 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.app.AlarmManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -11,7 +10,6 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -34,13 +32,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
-import static android.os.Build.VERSION_CODES.M;
-import static com.example.maurax.todoqueue.Util.message;
-import static com.example.maurax.todoqueue.Util.saveOptions;
+import static com.mkindberg.todoqueue.Util.message;
+import static com.mkindberg.todoqueue.Util.saveOptions;
 
 /**
  * Created by marcus on 05/05/2017.

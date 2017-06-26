@@ -1,4 +1,4 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,8 +11,6 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 
 import java.util.List;
-
-import static android.R.attr.action;
 
 /**
  * Created by marcus on 23/04/2017.

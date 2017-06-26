@@ -1,10 +1,9 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 

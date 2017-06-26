@@ -1,4 +1,4 @@
-package com.example.maurax.todoqueue;
+package com.mkindberg.todoqueue;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.icu.util.Calendar;
 import android.preference.PreferenceManager;
 
-import static android.R.id.list;
 import static android.content.Context.ALARM_SERVICE;
 
 /**
