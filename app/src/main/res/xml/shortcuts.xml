@@ -9,8 +9,8 @@
         >
         <intent
             android:action="android.intent.action.ADDNEW"
-            android:targetPackage="com.example.maurax.todoqueue"
-            android:targetClass="com.example.maurax.todoqueue.AddPopup" />
+            android:targetPackage="com.mkindberg.todoqueue"
+            android:targetClass="com.mkindberg.todoqueue.AddPopup" />
         <!-- If your shortcut is associated with multiple intents, include them
              here. The last intent in the list determines what the user sees when
              they launch this shortcut. -->

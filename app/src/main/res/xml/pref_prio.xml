@@ -1,0 +1,58 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <EditTextPreference
+        android:defaultValue="@string/default_prio_0"
+        android:key="settings_prio_0"
+        android:title="@string/default_prio_0"
+        android:capitalize="words"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_prio_1"
+        android:key="settings_prio_1"
+        android:title="@string/default_prio_1"
+        android:capitalize="words"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_prio_2"
+        android:key="settings_prio_2"
+        android:title="@string/default_prio_2"
+        android:capitalize="words"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_prio_3"
+        android:key="settings_prio_3"
+        android:title="@string/default_prio_3"
+        android:capitalize="words"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_prio_4"
+        android:key="settings_prio_4"
+        android:title="@string/default_prio_4"
+        android:capitalize="words"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        />
+
+    <Preference
+        android:key="settings_prio_default"
+        android:title="Default"
+        />
+</PreferenceScreen>

@@ -1,28 +1,29 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.maurax.todoqueue.ListsActivity">
+    tools:context="com.mkindberg.todoqueue.BasicListActivity">
     <item
         android:title="Tutorial"
-        android:id="@+id/tutorialOp"
+        android:id="@+id/menu_item_tutorial"
         />
     <item
         android:title="Sort by priorities"
-        android:id="@+id/sortOp"
+        android:id="@+id/menu_item_sort"
         />
     <item
         android:title="Lists"
-        android:id="@+id/listOp"
+        android:id="@+id/menu_item_lists"
         />
-
     <item
         android:title="Use colors"
         android:checkable="true"
-        android:id="@+id/colorsOp"
+        android:id="@+id/menu_item_colors"
         />
     <item
-        android:title="Show notification"
-        android:checkable="true"
-        android:id="@+id/notifyOp"
+        android:title="Settings"
+        android:id="@+id/menu_item_settings"
         />
-
+    <item
+        android:title="Share"
+        android:id="@+id/menu_item_share"
+        />
 </menu>

@@ -1,82 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relLay2"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/outerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.maurax.todoqueue.ListAllActivity">
+    >
+<RelativeLayout
+    android:id="@+id/relLay2"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    >
 
-    <Button
-        android:id="@+id/buttonBot"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/button_back"
-        android:onClick="moveDown"
-        android:text="@string/move_down_btn"
-        android:textColor="#999" />
-
-    <Button
-        android:id="@+id/buttonTop"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/button_back"
-        android:onClick="moveUp"
-        android:stateListAnimator="@null"
-        android:text="@string/move_up_btn"
-
-        android:textColor="#999" />
-
-    <Button
-        android:id="@+id/buttonLeft"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="50dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentLeft="true"
-        android:background="@drawable/button_back"
-        android:onClick="edit"
-        android:text="@string/edit_btn"
-        android:textColor="#999" />
-
-    <Button
-        android:id="@+id/buttonRight"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="50dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/button_back"
-        android:onClick="complete"
-        android:text="@string/complete_btn"
-        android:textColor="#999" />
-
-    <Button
-        android:id="@+id/buttonMenu"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        style="?android:attr/borderlessButtonStyle"
-        android:background="@drawable/button_back"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-
-        android:rotation="90"
-        android:text="..."
-
-        android:onClick="menu" />
-
+    <include layout="@layout/common_buttons"/>
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:stretchColumns="*"
 
         android:layout_above="@+id/buttonBot"
-        android:layout_below="@id/buttonTop"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@id/buttonRight"
-        android:layout_toEndOf="@id/buttonLeft">
+        android:layout_below="@+id/buttonTop"
+        android:layout_toEndOf="@+id/buttonLeft"
+        android:layout_toStartOf="@+id/buttonRight"
+        >
 
         <TableRow>
 
@@ -95,13 +42,6 @@
                 android:background="#FFFFFF"/>
         </TableRow>
     </TableLayout>
-    <TextView
-        android:id="@+id/ListText"
-        android:layout_width="fill_parent"
-        android:layout_height="30dp"
-        android:textAlignment="viewStart"
-        android:text="List"
-        android:paddingStart="10dp"
-        android:paddingTop="5dp"
-        />
-</RelativeLayout>
+
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

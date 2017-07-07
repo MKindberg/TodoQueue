@@ -4,11 +4,11 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="light_grey">#DCDCDC</color>
-    <color name="prio1">#F44336</color>
-    <color name="prio2">#FF9800</color>
-    <color name="prio3">#FFEB3B</color>
-    <color name="prio4">#66BB6A</color>
-    <color name="prio5">#42A5F5</color>
+    <color name="prioUrgent">#F44336</color>
+    <color name="prioHigh">#FF9800</color>
+    <color name="prioMedium">#FFEB3B</color>
+    <color name="prioLow">#66BB6A</color>
+    <color name="prioNone">#42A5F5</color>
     <color name="noPrio">#FFF</color>
     <color name="transparent">#00000000</color>
 
