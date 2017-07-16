@@ -1,0 +1,61 @@
+<!--https://code.tutsplus.com/tutorials/the-easiest-way-to-create-vertical-text-with-css--net-15284-->
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+  .vertical-text{
+    height: 100%;
+    font-size: 20px;
+    width: 20px;
+    word-wrap: break-word;
+  }
+  #task{
+    height: 100%;
+    width: 100%;
+    background-color: lightgrey;
+    padding-top: 10%;
+  }
+  #task-name{
+    font-size: 70px;
+  }
+  #task-desc{
+    font-size: 30px;
+    color: DimGrey;
+  }
+  #postpone{
+    left: 0;
+    direction: ltr;
+  }
+  #complete{
+    right: 0;
+    direction: rtl;
+  }
+  #add-new{
+    bottom: 0;
+  }
+  #put-last{
+    top: 0;
+  }
+  button{
+    position: fixed;
+  }
+</style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <button class="btn btn-block" id="put-last">Put last</button>
+    </div>
+    <div class="row">
+      <button class="btn vertical-text text-center" id="postpone">Postpone</button>
+    <button class="btn vertical-text" id="complete">Complete</button>
+  </div>
+    <div class="row">
+      <button class="btn btn-block" id=add-new>Add new</button>
+    </div>
+
+  </div>
+  <div id="task">
+    <h1 class="text-center block" id="task-name">Task</h1>
+    <p class="text-center block" id="task-desc">Description</p>
+  </div>
+</body>
