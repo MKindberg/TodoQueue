@@ -1,3 +1,11 @@
+<!--
+TODO:
+Import/export lists
+show prio
+sort list
+add colors
+-->
+
 <head>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -20,21 +28,32 @@
         update();
     }
     function postpone(){
-        var temp = tasks[0];
-        tasks[0]=tasks[1];
-        tasks[1]=temp;
-        update();
+        if(tasks.length>1){
+            var temp = tasks[0];
+            tasks[0]=tasks[1];
+            tasks[1]=temp;
+            update();
+        }else {
+            alert("Last item");
+        }
     }
     function putLast(){
-        tasks.push(tasks.shift());
-        update();
+        if(tasks.length>1){
+            tasks.push(tasks.shift());
+            update();
+        }else {
+            alert("Last item");
+        }
     }
     function complete(){
         if(tasks.length>0){
             tasks.shift();
             update();
+        }else {
+            alert("No items left to complete");
         }
     }
+
     function update(){
         if(tasks.length>0){
             $("#task-name").text(tasks[0].name);
@@ -42,7 +61,22 @@
         }else{
             $("#task-name").text("List empty");
             $("#task-desc").text("Please add a task");
+            $('body').on('swipedown',function(){alert("swipedown..");} );
+            $('body').on('swipeup',function(){alert("swipedown..");} );
+            $('body').on('swiperight',function(){alert("swipedown..");} );
+            $('body').on('swipeleft',function(){alert("swipedown..");} );
         }
+    }
+
+    function keypress(e){
+        if(e.keyCode==38) //up
+            putLast();
+        else if(e.keyCode==37) //left
+            postpone();
+        else if(e.keyCode==39) //right
+            complete();
+        else if(e.keyCode==40) //down
+            addNew();
     }
 
     $(document).ready(function() {
@@ -92,7 +126,7 @@
 </style>
 
 </head>
-<body>
+<body onkeyup="keypress(event)">
   <div class="container-fluid">
     <div class="row">
       <button class="btn btn-block" onclick="putLast()" id="put-last">&#9650;Put last&#9650;</button>
