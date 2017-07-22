@@ -1,8 +1,8 @@
 <!--
 TODO:
-Import/export lists
-show prio
 sort list
+Import/export lists
+List mode
 add colors
 -->
 
@@ -33,16 +33,20 @@ add colors
             tasks[0]=tasks[1];
             tasks[1]=temp;
             update();
-        }else {
+        }else if (tasks.length==1){
             alert("Last item");
+        }else {
+            alert("No items");
         }
     }
     function putLast(){
         if(tasks.length>1){
             tasks.push(tasks.shift());
             update();
-        }else {
+        }else if (tasks.length==1){
             alert("Last item");
+        }else {
+            alert("No items");
         }
     }
     function complete(){
@@ -54,17 +58,22 @@ add colors
         }
     }
 
+    function sort(){
+        console.log(tasks);
+        tasks.sort(function(a, b){return a.prio-b.prio});
+        console.log(tasks);
+        update();
+    }
+
     function update(){
         if(tasks.length>0){
             $("#task-name").text(tasks[0].name);
             $("#task-desc").text(tasks[0].desc);
+            $("#task-prio").text("Prio: " + tasks[0].prio);
         }else{
             $("#task-name").text("List empty");
             $("#task-desc").text("Please add a task");
-            $('body').on('swipedown',function(){alert("swipedown..");} );
-            $('body').on('swipeup',function(){alert("swipedown..");} );
-            $('body').on('swiperight',function(){alert("swipedown..");} );
-            $('body').on('swipeleft',function(){alert("swipedown..");} );
+            $("#task-prio").text("");
         }
     }
 
@@ -80,7 +89,7 @@ add colors
     }
 
     $(document).ready(function() {
-        console.log("DONE LOADING");
+
     });
 </script>
 
@@ -88,6 +97,10 @@ add colors
   .vertical-text{
     height: 100%;
     width: 40px;
+  }
+  .corner{
+      border: 1px solid black;
+      border-radius: 0;
   }
   #task{
     height: 100%;
@@ -116,6 +129,33 @@ add colors
   #put-last{
     top: 0;
   }
+  #task-prio{
+      position: fixed;
+      bottom: 35;
+      right: 60;
+      font-size: 20px;
+  }
+
+  #btn-save{
+      position: absolute;
+      bottom: 0;
+      left: 0;
+  }
+  #btn-load{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+  }
+  #btn-sort{
+      position: absolute;
+      top: 0;
+      left: 0;
+  }
+  #btn-list{
+      position: absolute;
+      top: 0;
+      right: 0;
+  }
   button{
     position: fixed;
     font-size:40px;
@@ -141,6 +181,13 @@ add colors
     <div id="task">
         <h1 class="text-center block" id="task-name">Task</h1>
         <p class="text-center block" id="task-desc">Description</p>
+        <p id=task-prio>
+
+        </p>
     </div>
   </div>
+  <button class="corner btn" id="btn-save">Save</button>
+  <button class="corner btn" id="btn-load">Load</button>
+  <button class="corner btn" onclick="sort()" id="btn-sort">Sort</button>
+  <button class="corner btn" id="btn-list">List</button>
 </body>
