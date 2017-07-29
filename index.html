@@ -109,19 +109,26 @@ add colors
     }
 
     function parseInput(data){
-
+      tasks = [];
+      inTasks = data.split("\n----\n");
+      for(var i=0;i<inTasks.length-1;i++){
+        inTask = inTasks[i].split(";;;\n");
+        tasks.push(new Task(inTask[0], inTask[1], inTask[2]));
+      }
+      update();
     }
 
     function handleFileSelect(evt) {
 
         var reader = new FileReader();
-        //alert("Function called");
         reader.onload = function(){
-            alert("In function");
             var text = reader.result;
-            parseInput(test);
+            parseInput(text);
         };
         reader.readAsText(evt.target.files[0]);
+        $("#file").remove();
+        $("body").append("<input type=\"file\" id=\"file\" style=\"display: none\">");
+        document.getElementById('file').addEventListener('change', handleFileSelect, false);
     }
 
 
