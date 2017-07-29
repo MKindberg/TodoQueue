@@ -1,7 +1,8 @@
 <!--
 TODO:
-sort list
 Import/export lists
+check the value of prio
+better input form
 List mode
 add colors
 -->
@@ -77,6 +78,59 @@ add colors
         }
     }
 
+    function download(filename, text) {
+        var pom = document.createElement('a');
+        pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        pom.setAttribute('download', filename);
+
+        if (document.createEvent) {
+            var event = document.createEvent('MouseEvents');
+            event.initEvent('click', true, true);
+            pom.dispatchEvent(event);
+        }
+        else {
+            pom.click();
+        }
+    }
+
+    function save(){
+        if(tasks.length==0){
+            alert("Can't save empty list")
+            return;
+        }
+        var filename = prompt("What do you want to name the file");
+        filename+=".txt";
+        var data = "";
+        for (var i=0;i<tasks.length;++i){
+            console.log(tasks[i].name);
+            data+=tasks[i].name+";;;\n"+tasks[i].desc+";;;\n"+tasks[i].prio+"\n----\n";
+        }
+        download(filename, data);
+    }
+
+    function handleFileSelect(evt) {
+        var files = evt.target.files;
+        var file = files[0];
+        var reader = new FileReader();
+        //reader.onload = function(event) {
+        var data = String(reader.readAsText(file));//String(event.target.result);
+        console.log(data);
+        var tasksData = data.split("\n----\n");
+        console.log(tasksData.length);
+
+        tasks = new Array();
+        for (var i=0;i<tasksData.length;++i){
+            console.log(tasksData[0]);
+            taskProps = tasksData[i].split(";;;\n");
+            tasks[i] = new Task(taskProps[0], taskProps[1], taskProps[2]);
+        }
+        //}
+        update();
+    }
+
+    function load(){
+    }
+
     function keypress(e){
         if(e.keyCode==38) //up
             putLast();
@@ -89,7 +143,7 @@ add colors
     }
 
     $(document).ready(function() {
-
+        document.getElementById('btn-load').addEventListener('change', handleFileSelect, false);
     });
 </script>
 
@@ -186,8 +240,9 @@ add colors
         </p>
     </div>
   </div>
-  <button class="corner btn" id="btn-save">Save</button>
-  <button class="corner btn" id="btn-load">Load</button>
+  <input type="file" id="files" />
+  <button class="corner btn" onclick="save()" id="btn-save">Save</button>
+  <input type="file" class="corner btn" id="btn-load" name="file"/>
   <button class="corner btn" onclick="sort()" id="btn-sort">Sort</button>
   <button class="corner btn" id="btn-list">List</button>
 </body>
