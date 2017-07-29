@@ -130,7 +130,21 @@ add colors
         document.getElementById('file').addEventListener('change', handleFileSelect, false);
     }
 
+    function addTask(form){
+      tasks.push(new Task(form.name.value, form.desc.value, form.prio.value));
+      cancelForm();
+    }
 
+    function toForm(){
+      //hide Task
+      //show form
+      //edit buttons
+    }
+    function fromForm(){
+      //hide form
+      //show Task
+      //edit buttons
+    }
 
     function load(){
         alert("Loading file");
@@ -157,6 +171,10 @@ add colors
             $('#file').trigger('click');
         });
         document.getElementById('file').addEventListener('change', handleFileSelect, false);
+
+        $("#btn-list").click(function () {
+
+        })
     });
 </script>
 
@@ -169,11 +187,13 @@ add colors
       border: 1px solid black;
       border-radius: 0;
   }
-  #task{
+  .center-block{
     height: 100%;
     width: 100%;
     background-color: lightgrey;
     padding-top: 15%;
+    padding-left: auto;
+    padding-right: auto;
   }
   #task-name{
     font-size: 70px;
@@ -245,12 +265,30 @@ add colors
     <div class="row">
       <button class="btn btn-block" onclick="addNew()" id=add-new>&#9660;Add new&#9660;</button>
     </div>
-    <div id="task">
+    <div class="center-block" id="task">
         <h1 class="text-center block" id="task-name">Task</h1>
         <p class="text-center block" id="task-desc">Description</p>
         <p id=task-prio>
 
         </p>
+    </div>
+    <div class="center-block" align="center" id="form-add">
+      <form action="">
+        <table>
+          <tr>
+            <th>Task: </th><th><input type="text" name="name" size="30"> </th>
+          </tr>
+          <tr>
+            <th>Description: </th><th><input type="text" name="desc" size="30"></th>
+          </tr>
+          <tr>
+            <th>Prio: </th><th><input type="number" name="prio" min="1" max="5"></th>
+          </tr>
+          <tr>
+            <th><input type="button" value="Add" onclick="addTask(this.form)"></th><th><input type="button" value="Cancel" onclick="cancelForm"></th>
+          </tr>
+        </table>
+      </form>
     </div>
   </div>
 
