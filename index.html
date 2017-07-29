@@ -1,6 +1,5 @@
 <!--
 TODO:
-Import/export lists
 check the value of prio
 better input form
 List mode
@@ -146,6 +145,10 @@ add colors
             complete();
         else if(e.keyCode==40) //down
             addNew();
+        else if(e.keyCode==83) //s
+            save();
+        else if(e.keyCode==76) //l
+            $('#file').trigger('click');
     }
 
     $(document).ready(function() {
@@ -153,7 +156,6 @@ add colors
             event.preventDefault();
             $('#file').trigger('click');
         });
-        //document.getElementById('btn-load').addEventListener('change', , false);
         document.getElementById('file').addEventListener('change', handleFileSelect, false);
     });
 </script>
