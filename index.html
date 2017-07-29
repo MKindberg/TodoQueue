@@ -13,12 +13,64 @@ add colors
 
 
 <script>
+    const MODE_TASKS=0;
+    const MODE_ADD=1;
+
+    var mode = MODE_TASKS;
+    var tasks = new Array();
+
+    function btnUp(){
+        if(mode==MODE_TASKS){
+            putLast();
+        }else if(mode==MODE_ADD){
+            //do nothing
+        }
+    }
+
+    function btnDown(){
+        if(mode==MODE_TASKS){
+            toAddView();
+        }else if(mode==MODE_ADD){
+            fromFormView();
+        }
+    }
+
+    function btnRight(){
+        if(mode==MODE_TASKS){
+            complete();
+        }else if(mode==MODE_ADD){
+            //do nothing
+        }
+    }
+
+    function btnLeft(){
+        if(mode==MODE_TASKS){
+            postpone();
+        }else if(mode==MODE_ADD){
+            //do nothing
+        }
+    }
+    function btnS(){
+        if(mode==MODE_TASKS){
+            save();
+        }else if(mode==MODE_ADD){
+            //do nothing
+        }
+    }
+    function btnL(){
+        if(mode==MODE_TASKS){
+            $('#file').trigger('click');
+        }else if(mode==MODE_ADD){
+            //do nothing
+        }
+    }
+
     function Task(name, desc, prio=3){
         this.name = name;
         this.desc = desc;
         this.prio = prio;
     }
-    var tasks = new Array();
+
 
     function addNew(){
         var name = prompt("Name");
@@ -132,37 +184,37 @@ add colors
 
     function addTask(form){
       tasks.push(new Task(form.name.value, form.desc.value, form.prio.value));
-      cancelForm();
+      toTasksView();
+      update();
     }
 
-    function toForm(){
-      //hide Task
-      //show form
+    function toAddView(){
+      $("#task").hide();
+      $("#form-add").show();
+      mode=MODE_ADD
       //edit buttons
     }
-    function fromForm(){
-      //hide form
-      //show Task
+    function toTasksView(){
+        $("#form-add").hide();
+        $("#task").show();
+        mode=MODE_TASKS
       //edit buttons
-    }
-
-    function load(){
-        alert("Loading file");
+      //clean form
     }
 
     function keypress(e){
         if(e.keyCode==38) //up
-            putLast();
+            btnUp();
         else if(e.keyCode==37) //left
-            postpone();
+            btnLeft();
         else if(e.keyCode==39) //right
-            complete();
+            btnRight();
         else if(e.keyCode==40) //down
-            addNew();
+            btnDown();
         else if(e.keyCode==83) //s
-            save();
+            btnS();
         else if(e.keyCode==76) //l
-            $('#file').trigger('click');
+            btnL();
     }
 
     $(document).ready(function() {
@@ -173,7 +225,7 @@ add colors
         document.getElementById('file').addEventListener('change', handleFileSelect, false);
 
         $("#btn-list").click(function () {
-
+            alert("Mode="+mode);
         })
     });
 </script>
@@ -194,6 +246,9 @@ add colors
     padding-top: 15%;
     padding-left: auto;
     padding-right: auto;
+  }
+  #form-add{
+    display: none;
   }
   #task-name{
     font-size: 70px;
@@ -256,23 +311,23 @@ add colors
 <body onkeyup="keypress(event)">
   <div class="container-fluid">
     <div class="row">
-      <button class="btn btn-block" onclick="putLast()" id="put-last">&#9650;Put last&#9650;</button>
+      <button class="btn btn-block" onclick="btnUp" id="put-last">&#9650;Put last&#9650;</button>
     </div>
     <!--<div class="row">-->
-      <button class="btn vertical-text text-center" onclick="postpone()" id="postpone">	&#9664;<br/>P<br/>o<br/>s<br/>t<br/>p<br/>o<br/>n<br/>e<br/>&#9664;</button>
-    <button class="btn vertical-text" onclick="complete()" id="complete">&#9654;<br/>C<br/>o<br/>m<br/>p<br/>l<br/>e<br/>t<br/>e<br/>&#9654;</button>
+      <button class="btn vertical-text text-center" onclick="btnLeft" id="postpone">	&#9664;<br/>P<br/>o<br/>s<br/>t<br/>p<br/>o<br/>n<br/>e<br/>&#9664;</button>
+    <button class="btn vertical-text" onclick="btnRight" id="complete">&#9654;<br/>C<br/>o<br/>m<br/>p<br/>l<br/>e<br/>t<br/>e<br/>&#9654;</button>
   <!--</div>-->
     <div class="row">
-      <button class="btn btn-block" onclick="addNew()" id=add-new>&#9660;Add new&#9660;</button>
+      <button class="btn btn-block" onclick="btnDown" id=add-new>&#9660;Add new&#9660;</button>
     </div>
     <div class="center-block" id="task">
         <h1 class="text-center block" id="task-name">Task</h1>
         <p class="text-center block" id="task-desc">Description</p>
         <p id=task-prio>
-
         </p>
     </div>
     <div class="center-block" align="center" id="form-add">
+        <h1>Add Task</h1>
       <form action="">
         <table>
           <tr>
@@ -296,7 +351,6 @@ add colors
   <input type="file" id="file" style="display: none">
 
   <button class="corner btn" onclick="save()" id="btn-save">Save</button>
-  <!--<input type="file" class="corner btn" id="btn-load" name="file"/>-->
   <button class="corner btn" onclick="sort()" id="btn-sort">Sort</button>
   <button class="corner btn" id="btn-list">List</button>
 </body>
