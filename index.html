@@ -108,27 +108,26 @@ add colors
         download(filename, data);
     }
 
-    function handleFileSelect(evt) {
-        var files = evt.target.files;
-        var file = files[0];
-        var reader = new FileReader();
-        //reader.onload = function(event) {
-        var data = String(reader.readAsText(file));//String(event.target.result);
-        console.log(data);
-        var tasksData = data.split("\n----\n");
-        console.log(tasksData.length);
+    function parseInput(data){
 
-        tasks = new Array();
-        for (var i=0;i<tasksData.length;++i){
-            console.log(tasksData[0]);
-            taskProps = tasksData[i].split(";;;\n");
-            tasks[i] = new Task(taskProps[0], taskProps[1], taskProps[2]);
-        }
-        //}
-        update();
     }
 
+    function handleFileSelect(evt) {
+
+        var reader = new FileReader();
+        //alert("Function called");
+        reader.onload = function(){
+            alert("In function");
+            var text = reader.result;
+            parseInput(test);
+        };
+        reader.readAsText(evt.target.files[0]);
+    }
+
+
+
     function load(){
+        alert("Loading file");
     }
 
     function keypress(e){
@@ -143,7 +142,12 @@ add colors
     }
 
     $(document).ready(function() {
-        document.getElementById('btn-load').addEventListener('change', handleFileSelect, false);
+        $("#btn-load").click(function (event) {
+            event.preventDefault();
+            $('#file').trigger('click');
+        });
+        //document.getElementById('btn-load').addEventListener('change', , false);
+        document.getElementById('file').addEventListener('change', handleFileSelect, false);
     });
 </script>
 
@@ -240,9 +244,12 @@ add colors
         </p>
     </div>
   </div>
-  <input type="file" id="files" />
+
+  <input class="corner btn" id="btn-load" type="submit" value="Load" />
+  <input type="file" id="file" style="display: none">
+
   <button class="corner btn" onclick="save()" id="btn-save">Save</button>
-  <input type="file" class="corner btn" id="btn-load" name="file"/>
+  <!--<input type="file" class="corner btn" id="btn-load" name="file"/>-->
   <button class="corner btn" onclick="sort()" id="btn-sort">Sort</button>
   <button class="corner btn" id="btn-list">List</button>
 </body>
