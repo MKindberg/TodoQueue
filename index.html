@@ -1,7 +1,5 @@
 <!--
 TODO:
-check the value of prio
-better input form
 List mode
 add colors
 -->
@@ -21,25 +19,25 @@ add colors
 
     function btnUp(){
         if(mode==MODE_TASKS){
-            putLast();
+          putLast();
         }else if(mode==MODE_ADD){
-            //do nothing
+          toTasksView();
         }
     }
 
     function btnDown(){
         if(mode==MODE_TASKS){
-            toAddView();
+          toAddView();
         }else if(mode==MODE_ADD){
-            fromFormView();
+          $('#submit-form').trigger('click');
         }
     }
 
     function btnRight(){
         if(mode==MODE_TASKS){
-            complete();
+          complete();
         }else if(mode==MODE_ADD){
-            //do nothing
+          $('#submit-form').trigger('click');
         }
     }
 
@@ -47,7 +45,7 @@ add colors
         if(mode==MODE_TASKS){
             postpone();
         }else if(mode==MODE_ADD){
-            //do nothing
+            toTasksView();
         }
     }
     function btnS(){
@@ -192,14 +190,27 @@ add colors
       $("#task").hide();
       $("#form-add").show();
       mode=MODE_ADD
-      //edit buttons
+      updateBtnText();
     }
     function toTasksView(){
         $("#form-add").hide();
         $("#task").show();
         mode=MODE_TASKS
-      //edit buttons
-      //clean form
+        updateBtnText();
+        document.getElementById("add-form").reset();
+    }
+    function updateBtnText(){
+      if(mode==MODE_TASKS){
+        $("#btn-up").html("&#9650;Put last&#9650;");
+        $("#btn-down").html("&#9660;Add new&#9660;");
+        $("#btn-left").html("&#9664;<br/>P<br/>o<br/>s<br/>t<br/>p<br/>o<br/>n<br/>e<br/>&#9664;");
+        $("#btn-right").html("&#9654;<br/>C<br/>o<br/>m<br/>p<br/>l<br/>e<br/>t<br/>e<br/>&#9654;");
+      }else if(mode==MODE_ADD){
+        $("#btn-up").html("&#9650;Cancel&#9650;");
+        $("#btn-down").html("&#9660;Add&#9660;");
+        $("#btn-left").html("&#9664;<br/>C<br/>a<br/>n<br/>c<br/>e<br/>l<br/>&#9664;");
+        $("#btn-right").html("&#9654;<br/>A<br/>d<br/>d<br/>&#9654;");
+      }
     }
 
     function keypress(e){
@@ -257,18 +268,18 @@ add colors
     font-size: 30px;
     color: DimGrey;
   }
-  #postpone{
+  #btn-left{
     left: 0;
     direction: ltr;
   }
-  #complete{
+  #btn-right{
     right: 0;
     direction: rtl;
   }
-  #add-new{
+  #btn-down{
     bottom: 0;
   }
-  #put-last{
+  #btn-up{
     top: 0;
   }
   #task-prio{
@@ -311,14 +322,14 @@ add colors
 <body onkeyup="keypress(event)">
   <div class="container-fluid">
     <div class="row">
-      <button class="btn btn-block" onclick="btnUp" id="put-last">&#9650;Put last&#9650;</button>
+      <button class="btn btn-block" onclick="btnUp()" id="btn-up">&#9650;Put last&#9650;</button>
     </div>
     <!--<div class="row">-->
-      <button class="btn vertical-text text-center" onclick="btnLeft" id="postpone">	&#9664;<br/>P<br/>o<br/>s<br/>t<br/>p<br/>o<br/>n<br/>e<br/>&#9664;</button>
-    <button class="btn vertical-text" onclick="btnRight" id="complete">&#9654;<br/>C<br/>o<br/>m<br/>p<br/>l<br/>e<br/>t<br/>e<br/>&#9654;</button>
+      <button class="btn vertical-text text-center" onclick="btnLeft()" id="btn-left">	&#9664;<br/>P<br/>o<br/>s<br/>t<br/>p<br/>o<br/>n<br/>e<br/>&#9664;</button>
+    <button class="btn vertical-text" onclick="btnRight()" id="btn-right">&#9654;<br/>C<br/>o<br/>m<br/>p<br/>l<br/>e<br/>t<br/>e<br/>&#9654;</button>
   <!--</div>-->
     <div class="row">
-      <button class="btn btn-block" onclick="btnDown" id=add-new>&#9660;Add new&#9660;</button>
+      <button class="btn btn-block" onclick="btnDown()" id=btn-down>&#9660;Add new&#9660;</button>
     </div>
     <div class="center-block" id="task">
         <h1 class="text-center block" id="task-name">Task</h1>
@@ -328,10 +339,10 @@ add colors
     </div>
     <div class="center-block" align="center" id="form-add">
         <h1>Add Task</h1>
-      <form action="">
+      <form action="" id="add-form">
         <table>
           <tr>
-            <th>Task: </th><th><input type="text" name="name" size="30"> </th>
+            <th>Task: </th><th><input type="text" name="name" size="30" id="form-name" autofocus> </th>
           </tr>
           <tr>
             <th>Description: </th><th><input type="text" name="desc" size="30"></th>
@@ -340,12 +351,13 @@ add colors
             <th>Prio: </th><th><input type="number" name="prio" min="1" max="5"></th>
           </tr>
           <tr>
-            <th><input type="button" value="Add" onclick="addTask(this.form)"></th><th><input type="button" value="Cancel" onclick="cancelForm"></th>
+            <th><input type="button" value="Add" onclick="addTask(this.form)" id="submit-form"></th><th><input type="button" value="Cancel" onclick="cancelForm"></th>
           </tr>
         </table>
       </form>
     </div>
-  </div>
+
+  <div class="center-block" align="center" id="form-add">
 
   <input class="corner btn" id="btn-load" type="submit" value="Load" />
   <input type="file" id="file" style="display: none">
@@ -353,4 +365,5 @@ add colors
   <button class="corner btn" onclick="save()" id="btn-save">Save</button>
   <button class="corner btn" onclick="sort()" id="btn-sort">Sort</button>
   <button class="corner btn" id="btn-list">List</button>
+  </div>
 </body>
