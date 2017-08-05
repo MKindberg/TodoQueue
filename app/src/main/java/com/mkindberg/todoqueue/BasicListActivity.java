@@ -247,7 +247,7 @@ public abstract class BasicListActivity extends AppCompatActivity {
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if(permissionCheck != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
         }
         permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -292,7 +292,13 @@ public abstract class BasicListActivity extends AppCompatActivity {
         switch (requestCode){
             case 1:
                 if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-
+                    importList();
+                }else
+                    message("Read/Write to external storage needed for import/export", this);
+                break;
+            case 2:
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    exportList();
                 }else
                     message("Read/Write to external storage needed for import/export", this);
                 break;
