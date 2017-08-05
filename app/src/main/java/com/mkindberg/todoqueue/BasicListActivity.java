@@ -1,5 +1,6 @@
 package com.mkindberg.todoqueue;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -7,11 +8,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -32,8 +37,18 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
+import static android.R.id.input;
+import static android.R.id.message;
 import static com.mkindberg.todoqueue.Util.message;
 import static com.mkindberg.todoqueue.Util.saveOptions;
 
@@ -155,7 +170,133 @@ public abstract class BasicListActivity extends AppCompatActivity {
         tasks = Util.loadTasks(options.list, this);
         Task.loadPrioNames(this);
         update();
+    }
 
+    public void importList() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+        permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            return;
+        }
+        message("IMPORT", this);
+        String state = Environment.getExternalStorageState();
+        if (!(Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))) {
+            message("External storage unavailable", this);
+            return;
+        }
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Import");
+        dialog.setMessage("What is the name of the list you want to import?");
+        final EditText inp = new EditText(this);
+        dialog.setView(inp);
+        dialog.setPositiveButton("OK!", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                importList2(inp.getText().toString());
+            }
+        });
+        dialog.setNegativeButton("Cancel", null);
+        dialog.show();
+        //TODO Parse file and add list
+
+    }
+    public void importList2(String listname) {
+        final List<String> lists = Util.loadLists(this);
+        if(!lists.contains(listname)){
+            save();
+            Util.addTable(listname, this);
+        }
+        options.list = listname;
+        saveOptions(options, this);
+        tasks.clear();
+
+        String filename = listname+".txt";
+        File file = new File(Environment.getExternalStorageDirectory().getPath()+"/"+filename);
+
+        StringBuilder data = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(file)) ) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                data.append(line);
+                data.append('\n');
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] list = data.toString().split("\n----\n");
+        for(String task: list){
+            String[] parts = task.split(";;;\n");
+            if(parts.length==3){
+                tasks.add(parts[0], parts[1], Integer.parseInt(parts[2]));
+            }
+        }
+        message("Import complete", this);
+        update();
+    }
+    public void exportList() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+        permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED){
+            return;
+        }
+
+        String state = Environment.getExternalStorageState();
+        if (!Environment.MEDIA_MOUNTED.equals(state)) {
+            message("External storage unavailable", this);
+            return;
+        }
+
+        String filename = options.list+".txt";
+
+        File file = new File(Environment.getExternalStorageDirectory().getPath()+"/"+filename);
+
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            message("Couldn't create file", this);
+            e.printStackTrace();
+        }
+        try (FileOutputStream fo = new FileOutputStream(file, false); PrintWriter pw = new PrintWriter(fo)){
+            for(Task t:tasks.getAll()){
+                pw.append(t.getName()+";;;\n");
+                pw.append((t.getDescription()+";;;\n"));
+                pw.append(t.getPriority()+"\n----\n");
+            }
+            pw.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            message("Could not write to file", this);
+            e.printStackTrace();
+        }
+        message("Exported "+options.list, this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode){
+            case 1:
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+
+                }else
+                    message("Read/Write to external storage needed for import/export", this);
+                break;
+        }
     }
 
     abstract void shareData();

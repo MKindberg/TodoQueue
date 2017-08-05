@@ -116,6 +116,10 @@ public class Tasks implements Parcelable {
         return tasks.getFirst();
     }
 
+    public void clear(){
+        tasks.clear();
+    }
+
     public void moveUp(int pos){
         tasks.add(pos - 1, tasks.remove(pos));
     }

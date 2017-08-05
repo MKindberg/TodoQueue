@@ -26,4 +26,12 @@
         android:title="Share"
         android:id="@+id/menu_item_share"
         />
+    <item
+        android:title="Import list"
+        android:id="@+id/menu_item_import"
+        />
+    <item
+        android:title="Export list"
+        android:id="@+id/menu_item_export"
+        />
 </menu>

@@ -231,6 +231,12 @@ public class ListAllActivity extends BasicListActivity {
                     case R.id.menu_item_share:
                         shareData();
                         return true;
+                    case R.id.menu_item_import:
+                        importList();
+                        return true;
+                    case R.id.menu_item_export:
+                        exportList();
+                        return true;
                     default:
                         return false;
                 }
