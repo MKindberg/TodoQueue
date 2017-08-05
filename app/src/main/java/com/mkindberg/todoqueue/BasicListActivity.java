@@ -183,7 +183,6 @@ public abstract class BasicListActivity extends AppCompatActivity {
         if(permissionCheck != PackageManager.PERMISSION_GRANTED){
             return;
         }
-        message("IMPORT", this);
         String state = Environment.getExternalStorageState();
         if (!(Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))) {
@@ -218,7 +217,11 @@ public abstract class BasicListActivity extends AppCompatActivity {
         tasks.clear();
 
         String filename = listname+".txt";
-        File file = new File(Environment.getExternalStorageDirectory().getPath()+"/"+filename);
+        File file = new File(Environment.getExternalStorageDirectory().getPath()+"/TodoQueue/"+filename);
+        if(!file.exists()){
+            message("Can't find file, name it \"listname.txt\"", this);
+            return;
+        }
 
         StringBuilder data = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file)) ) {
@@ -262,14 +265,18 @@ public abstract class BasicListActivity extends AppCompatActivity {
         }
 
         String filename = options.list+".txt";
-
-        File file = new File(Environment.getExternalStorageDirectory().getPath()+"/"+filename);
-
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            message("Couldn't create file", this);
-            e.printStackTrace();
+        File dir = new File(Environment.getExternalStorageDirectory().getPath()+"/TodoQueue");
+        if(!dir.exists())
+            dir.mkdir();
+        File file = new File(Environment.getExternalStorageDirectory().getPath()+"/TodoQueue/"+filename);
+        if(!file.exists()){
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                message("Couldn't create file", this);
+                e.printStackTrace();
+                return;
+            }
         }
         try (FileOutputStream fo = new FileOutputStream(file, false); PrintWriter pw = new PrintWriter(fo)){
             for(Task t:tasks.getAll()){
